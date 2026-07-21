@@ -68,33 +68,3 @@ print(get_transactions())
 
 
 
-# CREATE TEST REPORT (tests that financial reports can be stored)
-create_report(
-
-    "Monthly Financial Report",
-
-    "01/07/2026",
-
-    "31/07/2026",
-
-    2500,
-
-    500,
-
-    200,
-
-    1800,
-
-    0.36,
-
-    "Income exceeded expenses during this periodd."
-
-)
-
-
-
-# DISPLAY REPORTS
-
-print("\nREPORTS:")
-
-print(get_reports())
