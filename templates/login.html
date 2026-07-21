@@ -1,0 +1,182 @@
+<!-- Purpose: OmniLedger Login Page -->
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>OmniLedger Login</title>
+
+
+    <!-- Poppins Font -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+
+    <!-- CSS -->
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+
+</head>
+
+
+
+<body>
+
+
+<div class="login-page">
+
+
+    <!-- LEFT GREEN PANEL -->
+
+    <div class="left-panel">
+
+
+        <div class="logo">
+
+            OMNILEDGER
+
+        </div>
+
+
+
+        <div class="tagline">
+
+
+            <p class="small-text">
+
+                Your Financial Ledger
+
+            </p>
+
+
+
+            <h1>
+
+                Smart Tools for
+
+                <br>
+
+                <span>
+
+                    Smarter Work
+
+                </span>
+
+            </h1>
+
+
+        </div>
+
+
+    </div>
+
+
+
+
+
+    <!-- RIGHT LOGIN SECTION -->
+
+    <div class="login-section">
+
+
+        <h2>
+
+            Welcome Back!
+
+        </h2>
+
+
+
+        <p class="description">
+
+            Log in to access your dashboard, manage your
+
+            <br>
+
+            account, and continue securely with full control.
+
+        </p>
+
+
+
+
+
+        <form method="POST">
+
+
+            <input 
+            type="email" 
+            name="email"
+            placeholder="Email"
+            required>
+
+
+            <input 
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Password"
+            required>
+
+
+            <button type="submit">
+                Login
+            </button>
+
+
+
+        </form>
+
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- HIDING PASSWORD -->
+
+<script>
+
+function togglePassword(){
+
+    let password = document.getElementById("password");
+
+
+    if(password.type === "password"){
+
+        password.type = "text";
+
+    }
+
+    else{
+
+        password.type = "password";
+
+    }
+
+}
+
+</script>
+
+
+
+</body>
+
+
+</html>
