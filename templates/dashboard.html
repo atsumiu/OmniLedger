@@ -1,29 +1,428 @@
+<!-- Purpose: Dashboard Look -->
+
+
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
+
 
 <head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>OmniLedger Dashboard</title>
+
+    <!-- Poppins Font -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Dashboard CSS -->
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
 </head>
+
 
 
 <body>
 
-<h1>
-    Login Successful!
-</h1>
+
+<div class="dashboard-container">
 
 
-<p>
-    Welcome to OmniLedger.
-</p>
+    
+    <!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+    <div class="user-profile">
+
+        <div class="profile-image">
+
+            👤
+
+        </div>
 
 
-<p>
-    Dashboard interface coming soon.
-</p>
+        <p class="hello-text">
+
+            Hello!
+
+        </p>
+
+
+        <h3>
+
+            {{ session["name"] }}
+
+        </h3>
+
+
+    </div>
+
+
+
+        <div class="search-sidebar">
+
+            <input
+            type="text"
+            placeholder="Search">
+
+        </div>
+
+
+
+        <nav class="sidebar-menu">
+
+            <a href="#" class="active">
+
+                Dashboard
+
+            </a>
+
+            <a href="#">
+
+                Statistics
+
+            </a>
+
+            <a href="#">
+
+                Reports
+
+            </a>
+
+            <a href="#">
+
+                Properties
+
+            </a>
+
+            <a href="#">
+
+                AI Analytics
+
+            </a>
+
+
+            <hr>
+
+
+            <a href="#">
+
+                Settings
+
+            </a>
+
+            <a href="{{ url_for('logout') }}">
+
+                Log Out
+
+            </a>
+
+            <a href="#">
+
+                Help
+
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+
+    
+    <!-- MAIN CONTENT -->
+
+
+    <main class="main-content">
+
+
+
+        <!-- Header -->
+
+        <header class="top-header">
+
+            <div class="logo-section">
+
+                <h2>
+
+                    OmniLedger
+
+                </h2>
+
+            </div>
+
+
+
+            <div class="search-bar">
+
+                <input
+                type="text"
+                placeholder="Search properties...">
+
+            </div>
+
+        </header>
+
+
+
+        <!-- Analytics Row -->
+
+        <section class="analytics-row">
+
+
+
+            <!-- GRAPH -->
+
+            <div class="graph-card">
+
+                <h3>
+
+                    Financial Overview
+
+                </h3>
+
+                <div class="graph-placeholder">
+
+                    Graph Coming Soon
+
+                </div>
+
+            </div>
+
+
+
+            <!-- AI INSIGHT -->
+
+            <div class="ai-card">
+
+                <h3>
+
+                    AI Insight
+
+                </h3>
+
+                <p>
+
+                    Based on recent financial activity,
+                    Property PROP104 has generated a positive
+                    netProfit over the previous quarter.
+
+                </p>
+
+            </div>
+
+
+
+        </section>
+
+
+
+        <!-- INFORMATION CARDS -->
+
+        <section class="info-row">
+
+
+
+            <div class="info-card">
+
+                <h3>
+
+                    Ownership Data
+
+                </h3>
+
+                <p>
+
+                    <strong>ownershipData</strong>
+
+                </p>
+
+                <p>
+
+                    SSRK PTY LTD
+
+                </p>
+
+                <br>
+
+                <p>
+
+                    <strong>propertyID</strong>
+
+                </p>
+
+                <p>
+
+                    PROP104
+
+                </p>
+
+            </div>
+
+
+
+
+            <div class="info-card">
+
+                <h3>
+
+                    Tenant Information
+
+                </h3>
+
+                <p>
+
+                    <strong>tenantInfo</strong>
+
+                </p>
+
+                <p>
+
+                    Baek Nakyum
+
+                </p>
+
+                <br>
+
+                <p>
+
+                    Lease Active
+
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+
+
+
+        <!-- PROPERTY CARDS -->
+
+        <section class="property-section">
+
+
+            <div class="property-card">
+
+                <div class="property-image">
+
+                    Property Image
+
+                </div>
+
+                <h4>
+
+                    propertyAddress
+
+                </h4>
+
+                <p>
+
+                    123 Example Street
+
+                </p>
+
+            </div>
+
+
+
+
+            <div class="property-card">
+
+                <div class="property-image">
+
+                    Property Image
+
+                </div>
+
+                <h4>
+
+                    propertyAddress
+
+                </h4>
+
+                <p>
+
+                    45 Collins Street
+
+                </p>
+
+            </div>
+
+
+
+
+            <div class="property-card">
+
+                <div class="property-image">
+
+                    Property Image
+
+                </div>
+
+                <h4>
+
+                    propertyAddress
+
+                </h4>
+
+                <p>
+
+                    18 Queen Road
+
+                </p>
+
+            </div>
+
+
+
+
+            <div class="property-card">
+
+                <div class="property-image">
+
+                    Property Image
+
+                </div>
+
+                <h4>
+
+                    propertyAddress
+
+                </h4>
+
+                <p>
+
+                    7 River Avenue
+
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+
+    </main>
+
+
+
+</div>
 
 
 </body>
+
 
 </html>

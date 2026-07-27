@@ -1,29 +1,50 @@
 # Purpose: functions that communicate with database tables (CRUD)
+
+
 import sqlite3
 
-# Connect to database
+from werkzeug.security import generate_password_hash, check_password_hash
+
+
 def connect_database():
 
-    return sqlite3.connect("omniledger_system.db")
+    connection = sqlite3.connect("omniledger_system.db")
+
+    return connection
+
 
 
 
 # USER FUNCTIONS
 
 # CREATE USER
-def create_user(email, password):
+
+def create_user(name, email, password):
 
     connection = connect_database()
+
     cursor = connection.cursor()
 
-    cursor.execute("""
-    INSERT INTO Users(email, password)
-    VALUES (?, ?)
-    """,
-    (email, password))
+
+    # Convert password into secure hash
+
+    passwordHash = generate_password_hash(password)
+
+
+    cursor.execute(
+        """
+        INSERT INTO Users(name, email, passwordHash)
+
+        VALUES (?, ?, ?)
+        """,
+
+        (name, email, passwordHash)
+
+    )
 
 
     connection.commit()
+
     connection.close()
 
 
@@ -43,6 +64,60 @@ def get_users():
 
     return users
 
+# CHECK USER LOGIN
+
+def check_user(email, password):
+
+    connection = connect_database()
+
+    cursor = connection.cursor()
+
+
+    cursor.execute(
+        """
+        SELECT name, email, passwordHash
+
+        FROM Users
+
+        WHERE email = ?
+        """,
+
+        (email,)
+
+    )
+
+
+    user = cursor.fetchone()
+
+
+    connection.close()
+
+
+
+    # EXISTENCE CHECK
+
+    if user:
+
+        name = user[0]
+
+        storedEmail = user[1]
+
+        storedPassword = user[2]
+
+        
+        if check_password_hash(storedPassword, password):
+
+            return {
+
+                "name": name,
+
+                "email": storedEmail
+
+            }
+
+
+
+    return None
 
 
 # PROPERTY FUNCTIONS
@@ -96,17 +171,6 @@ def get_properties():
 # TRANSACTION FUNCTIONS (users can create and view transactions, system auto calculates gst)
 
 # CREATE TRANSACTION (adds a new transaction into the database)
-# User inputs:
-# - propertyID
-# - transactionType
-# - amount
-# - date
-# - category
-# - description
-# - attachment
-#
-# System calculates:
-# - gstValue
 
 
 def create_transaction(
@@ -308,3 +372,5 @@ def get_reports():
 
 
     return reports
+
+

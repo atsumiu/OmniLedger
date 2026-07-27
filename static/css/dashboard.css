@@ -1,0 +1,314 @@
+/* Purpose: Style for the dashboard */
+
+
+/* PAGE LAYOUT */
+
+*{
+
+    margin:0;
+
+    padding:0;
+
+    box-sizing:border-box;
+
+}
+
+
+
+body{
+
+    font-family:'Poppins', sans-serif;
+
+    background:#F5EEE4;
+
+    color:#3D3D3D;
+
+}
+
+
+
+/* PAGE LAYOUT */
+
+
+.dashboard-container{
+
+    display:flex;
+
+    width:100%;
+
+    min-height:100vh;
+
+}
+
+
+
+/* SIDEBARD */
+
+
+.sidebar{
+
+    width:260px;
+
+    background:#D8D2BC;
+
+    padding:35px 25px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:space-between;
+
+    border-top-right-radius:18px;
+
+    border-bottom-right-radius:18px;
+
+}
+
+
+
+/* USER PROFILE */
+
+
+.user-profile{
+
+    text-align:left;
+
+}
+
+
+
+.profile-image{
+
+    width:60px;
+
+    height:60px;
+
+    border-radius:50%;
+
+    background:white;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:28px;
+
+    margin-bottom:15px;
+
+}
+
+
+
+.hello-text{
+
+    font-size:13px;
+
+    color:#8A8A8A;
+
+}
+
+
+
+.user-profile h3{
+
+    color:#49614D;
+
+    font-size:16px;
+
+    margin-top:4px;
+
+}
+
+
+
+/* SIDEBAR SEARCH */
+
+
+.search-sidebar{
+
+    margin:35px 0;
+
+}
+
+
+
+.search-sidebar input{
+
+    width:100%;
+
+    padding:12px 18px;
+
+    border:none;
+
+    outline:none;
+
+    border-radius:30px;
+
+    background:#49614D;
+
+    color:white;
+
+    font-size:14px;
+
+}
+
+
+
+.search-sidebar input::placeholder{
+
+    color:white;
+
+}
+
+
+
+/* MENU */
+
+
+.sidebar-menu{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+}
+
+
+
+.sidebar-menu a{
+
+    text-decoration:none;
+
+    color:#5F5F5F;
+
+    font-size:15px;
+
+    padding:12px 16px;
+
+    border-radius:25px;
+
+    transition:0.25s;
+
+}
+
+
+
+.sidebar-menu a:hover{
+
+    background:#8EA08B;
+
+    color:white;
+
+}
+
+
+
+.sidebar-menu .active{
+
+    background:#8EA08B;
+
+    color:white;
+
+    font-weight:600;
+
+}
+
+
+
+.sidebar hr{
+
+    border:none;
+
+    border-top:1px solid rgba(0,0,0,.15);
+
+    margin:18px 0;
+
+}
+
+
+
+/* mAIN SECTION */
+
+
+.main-content{
+
+    flex:1;
+
+    padding:40px;
+
+}
+
+
+
+/* HEADER */
+
+
+.top-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:45px;
+
+}
+
+
+
+.logo-section h2{
+
+    color:#49614D;
+
+    font-size:34px;
+
+    font-weight:600;
+
+}
+
+
+
+/* SEARCH BAR */
+
+
+.search-bar{
+
+    width:420px;
+
+}
+
+
+
+.search-bar input{
+
+    width:100%;
+
+    padding:14px 24px;
+
+    border:none;
+
+    border-radius:30px;
+
+    outline:none;
+
+    background:white;
+
+    font-size:15px;
+
+    box-shadow:0 4px 10px rgba(0,0,0,.08);
+
+}
+
+
+
+.search-bar input::placeholder{
+
+    color:#999;
+
+}

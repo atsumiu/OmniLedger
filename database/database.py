@@ -1,25 +1,28 @@
-# Purpose: Connects to the SQLite database and creates all tables. Only creates database structures
+# Purpose: tables and stuff
 
-# IMPORTS
+
+
 import sqlite3
 
 
-# CONNECT TO DATABASE
 connection = sqlite3.connect("omniledger_system.db")
 
-#PYTHON SEND SQL COMMANDS
 cursor = connection.cursor()
 
 
-# CREATE USERS TABLE (stores user login info)
+
+# USER TABLE
+
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Users(
 
     userID INTEGER PRIMARY KEY AUTOINCREMENT,
 
+    name TEXT NOT NULL,
+
     email TEXT NOT NULL UNIQUE,
 
-    password TEXT NOT NULL,
+    passwordHash TEXT NOT NULL,
 
     loginSuccess INTEGER DEFAULT 0
 
@@ -27,7 +30,9 @@ CREATE TABLE IF NOT EXISTS Users(
 """)
 
 
-# CREATE PROPERTIES TABLE (stores property details)
+
+# PROPERTIES TABLE
+
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Properties(
 
@@ -43,7 +48,9 @@ CREATE TABLE IF NOT EXISTS Properties(
 """)
 
 
-# CREATE TRANSACTIONS TABLE (stores financial transactions & propertyID links to property)
+
+# TRANSACTIONS TABLE
+
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Transactions(
 
@@ -72,7 +79,9 @@ CREATE TABLE IF NOT EXISTS Transactions(
 """)
 
 
-# CREATE REPORTS TABLE (stores generated reports)
+
+# REPORTS TABLE
+
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Reports(
 
@@ -100,7 +109,9 @@ CREATE TABLE IF NOT EXISTS Reports(
 """)
 
 
-# CREATE MARKET DATA TABLE (stores info received from future api)
+
+# MARKET DATA TABLE
+
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS MarketData(
 
@@ -114,14 +125,11 @@ CREATE TABLE IF NOT EXISTS MarketData(
 """)
 
 
-# SAVE CHANGES (writes every create table command permanently)
+
 connection.commit()
 
 
-# CLOSE DATABASE (closes connection)
 connection.close()
 
 
-
-# MESSAGE (confirmation that database and tables were created successfully)
 print("Database and tables created successfully!")

@@ -322,3 +322,101 @@ button{
     cursor:pointer;
 
 }
+
+
+
+/* CREATE ACCOUNT */
+
+.create-account-text{
+
+    margin-top:20px;
+
+    text-align:center;
+
+    font-size:13px;
+
+    color:#737373;
+
+}
+
+.create-account-text a{
+
+    color:#3e5a4c;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+}
+
+.create-account-text a:hover{
+
+    text-decoration:underline;
+
+}
+
+
+/* CREATE ACCOUNT PAGE THING */
+
+
+.create-page{
+
+    width:90%;
+
+    height:85vh;
+
+    margin:auto;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:80px;
+
+}
+
+
+
+.create-section{
+
+    width:420px;
+
+}
+
+
+
+.create-section h2{
+
+    font-size:42px;
+
+    color:#3e5a4c;
+
+    font-weight:600;
+
+    margin-bottom:10px;
+
+}
+
+
+
+.create-section button{
+
+    margin-top:5px;
+
+}
+
+/* LOGIN ERROR MESSAGE */
+
+.error-message{
+
+    color:#b94a48;
+
+    font-size:12px;
+
+    margin-bottom:15px;
+
+    font-weight:500;
+
+}

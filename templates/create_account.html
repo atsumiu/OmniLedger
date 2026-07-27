@@ -1,4 +1,4 @@
-<!-- Purpose: OmniLedger Login Page -->
+<!-- Purpose: OmniLedger Create Account Page -->
 
 
 <!DOCTYPE html>
@@ -12,7 +12,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>OmniLedger Login</title>
+    <title>Create Account</title>
 
 
     <!-- Poppins Font -->
@@ -36,7 +36,7 @@
 <body>
 
 
-<div class="login-page">
+<div class="create-page">
 
 
     <!-- LEFT GREEN PANEL -->
@@ -87,14 +87,14 @@
 
 
 
-    <!-- RIGHT LOGIN SECTION -->
+    <!-- CREATE ACCOUNT SECTION -->
 
-    <div class="login-section">
+    <div class="create-section">
 
 
         <h2>
 
-            Welcome Back!
+            Create Account
 
         </h2>
 
@@ -102,64 +102,70 @@
 
         <p class="description">
 
-            Log in to access your dashboard, manage your
+            Create your account to manage your
 
             <br>
 
-            account, and continue securely with full control.
+            financial records securely.
 
         </p>
-        
 
-        {% with messages = get_flashed_messages() %}
-
-            {% if messages %}
-
-                <p class="error-message">
-
-                    {{ messages[0] }}
-
-                </p>
-
-            {% endif %}
-
-        {% endwith %}
 
 
 
         <form method="POST">
+            <label>Name</label>
 
+            <input
+            type="text"
+            name="name"
+            placeholder="Full Name"
+            required>
+
+
+
+            
+            <label>Email</label>
 
             <input 
-            type="email" 
+            type="email"
             name="email"
             placeholder="Email"
             required>
 
 
+
+
+            <label>Password</label>
+
             <input 
             type="password"
-            id="password"
             name="password"
             placeholder="Password"
             required>
 
 
+
+
             <button type="submit">
-                Login
+
+                Create Account
+
             </button>
+
+
 
             <p class="create-account-text">
 
-    Don't have an account?
+                Already have an account?
 
-    <a href="/create-account">
+                <a href="/">
 
-        Create Account
+                    Login
 
-    </a>
+                </a>
 
-</p>
+            </p>
 
 
 
@@ -171,34 +177,6 @@
 
 
 </div>
-
-
-
-<!-- HIDING PASSWORD -->
-
-<script>
-
-function togglePassword(){
-
-    let password = document.getElementById("password");
-
-
-    if(password.type === "password"){
-
-        password.type = "text";
-
-    }
-
-    else{
-
-        password.type = "password";
-
-    }
-
-}
-
-</script>
-
 
 
 </body>
