@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 
-from database.models import create_user, check_user
+from database.models import create_user, check_user, create_property
 
 
 # CREATING FLASK
@@ -36,11 +36,9 @@ def login():
 
 
             session["logged_in"] = True
-
-            session["email"] = user["email"]
-
+            session["userID"] = user["userID"]
             session["name"] = user["name"]
-
+            session["email"] = user["email"]
 
             return redirect(url_for("dashboard"))
 
@@ -58,17 +56,20 @@ def login():
     return render_template("login.html")
 
 
-
-# DASHBOARD PAGE
+#DASHBOARD
 @app.route("/dashboard")
 def dashboard():
 
-    # PREVENT ACCESS WITHOUT LOGIN
-    if "logged_in" not in session:
-        return redirect(url_for("login"))
+    from database.models import get_properties
 
 
-    return render_template("dashboard.html")
+    properties = get_properties(session["userID"])
+
+
+    return render_template(
+        "dashboard.html",
+        properties=properties
+    )
 
 
 
@@ -113,6 +114,47 @@ def create_account():
 
     return render_template("create_account.html")
 
+
+# ADD PROPERTY
+
+@app.route("/add_property", methods=["GET", "POST"])
+def add_property():
+
+
+    if request.method == "POST":
+
+
+        address = request.form["propertyAddress"]
+
+        ownership = request.form["ownershipData"]
+
+        tenant = request.form["tenantInfo"]
+
+
+
+        userID = session["userID"]
+
+
+
+        create_property(
+
+            userID,
+
+            address,
+
+            ownership,
+
+            tenant
+
+        )
+
+
+
+        return redirect(url_for("dashboard"))
+
+
+
+    return render_template("add_property.html")
 
 
 # RUN WEBSITE

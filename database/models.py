@@ -75,7 +75,7 @@ def check_user(email, password):
 
     cursor.execute(
         """
-        SELECT name, email, passwordHash
+        SELECT userID, name, email, passwordHash
 
         FROM Users
 
@@ -83,9 +83,7 @@ def check_user(email, password):
         """,
 
         (email,)
-
     )
-
 
     user = cursor.fetchone()
 
@@ -98,16 +96,17 @@ def check_user(email, password):
 
     if user:
 
-        name = user[0]
-
-        storedEmail = user[1]
-
-        storedPassword = user[2]
+        userID = user[0]
+        name = user[1]
+        storedEmail = user[2]
+        storedPassword = user[3]
 
         
         if check_password_hash(storedPassword, password):
 
             return {
+
+                "userID": userID,
 
                 "name": name,
 
@@ -116,29 +115,82 @@ def check_user(email, password):
             }
 
 
-
     return None
 
 
 # PROPERTY FUNCTIONS
 
-# CREATE PROPERTY (adds new proerty record into database)
-def create_property(propertyID, propertyAddress, ownershipData, tenantInfo):
+# GENERATE PROPERTY ID
+
+def generate_property_id():
+
+    connection = connect_database()
+
+    cursor = connection.cursor()
+
+
+    cursor.execute("""
+    SELECT propertyID
+
+    FROM Properties
+
+    ORDER BY propertyID DESC
+
+    LIMIT 1
+    """)
+
+
+    last_property = cursor.fetchone()
+
+
+    connection.close()
+
+
+    # FIRST 
+
+    if last_property is None:
+
+        return "PROP001"
+
+
+
+    last_number = int(last_property[0][4:])
+
+    new_number = last_number + 1
+
+
+    return f"PROP{new_number:03d}"
+
+
+# CREATE PROPERTY 
+def create_property(
+    userID,
+    propertyAddress,
+    ownershipData,
+    tenantInfo
+):
 
     connection = connect_database()
     cursor = connection.cursor()
+    propertyID = generate_property_id()
 
     cursor.execute("""
     INSERT INTO Properties(
+
         propertyID,
+        userID,
         propertyAddress,
         ownershipData,
         tenantInfo
+
     )
-    VALUES (?, ?, ?, ?)
+
+    VALUES (?, ?, ?, ?, ?)
+
     """,
     (
         propertyID,
+        userID,
         propertyAddress,
         ownershipData,
         tenantInfo
@@ -148,22 +200,36 @@ def create_property(propertyID, propertyAddress, ownershipData, tenantInfo):
     connection.close()
 
 
-# READ PROPERTIES (retrieves all stored properties)
-def get_properties():
+# READ PROPERTIES 
 
-    connection = connect_database()
-    cursor = connection.cursor()
+def get_properties(userID):
 
-    cursor.execute("""
-    SELECT * FROM Properties
-    """)
+    conn = connect_database()
+
+    cursor = conn.cursor()
+
+
+    cursor.execute(
+        """
+        SELECT *
+
+        FROM Properties
+
+        WHERE userID = ?
+
+        """,
+
+        (userID,)
+    )
+
 
     properties = cursor.fetchall()
 
-    connection.close()
+
+    conn.close()
+
 
     return properties
-
 
 
 

@@ -38,11 +38,16 @@ CREATE TABLE IF NOT EXISTS Properties(
 
     propertyID TEXT PRIMARY KEY,
 
+    userID INTEGER NOT NULL,
+
     propertyAddress TEXT NOT NULL,
 
     ownershipData TEXT NOT NULL,
 
-    tenantInfo TEXT
+    tenantInfo TEXT,
+
+    FOREIGN KEY(userID)
+        REFERENCES Users(userID)
 
 )
 """)

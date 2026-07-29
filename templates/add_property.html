@@ -1,0 +1,74 @@
+<!-- ADD PROPERTY PAGE -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Add Property - OmniLedger</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+
+<div class="property-container">
+
+
+    <!-- TITLE -->
+
+    <h1>Add Property</h1>
+
+    <p class="subtitle">
+        Enter property details below
+    </p>
+
+
+
+    <!-- PROPERTY FORM -->
+
+    <form method="POST">
+
+
+        <label>Property Address</label>
+
+        <input 
+        type="text"
+        name="propertyAddress"
+        placeholder="Enter property address"
+        required>
+
+
+        <label>Ownership Details</label>
+
+        <input 
+        type="text"
+        name="ownershipData"
+        placeholder="Enter ownership details"
+        required>
+
+
+        <label>Tenant Information</label>
+
+        <input 
+        type="text"
+        name="tenantInfo"
+        placeholder="Enter tenant information">
+
+
+        <button type="submit">
+            Add Property
+        </button>
+
+
+    </form>
+
+
+</div>
+
+
+</body>
+
+</html>

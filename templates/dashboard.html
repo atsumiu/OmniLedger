@@ -14,6 +14,7 @@
 
     <title>OmniLedger Dashboard</title>
 
+
     <!-- Poppins Font -->
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,9 +23,11 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+
     <!-- Dashboard CSS -->
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
 
 </head>
 
@@ -33,52 +36,63 @@
 <body>
 
 
+
 <div class="dashboard-container">
 
 
-    
+
     <!-- SIDEBAR -->
 
-<aside class="sidebar">
 
-    <div class="user-profile">
+    <aside class="sidebar">
 
-        <div class="profile-image">
 
-            👤
+        <div class="user-profile">
+
+
+            <div class="profile-image">
+
+                👤
+
+            </div>
+
+
+            <p class="hello-text">
+
+                Hello!
+
+            </p>
+
+
+            <h3>
+
+                {{ session["name"] }}
+
+            </h3>
+
 
         </div>
 
 
-        <p class="hello-text">
-
-            Hello!
-
-        </p>
-
-
-        <h3>
-
-            {{ session["name"] }}
-
-        </h3>
-
-
-    </div>
 
 
 
         <div class="search-sidebar">
 
-            <input
+
+            <input 
             type="text"
             placeholder="Search">
+
 
         </div>
 
 
 
+
+
         <nav class="sidebar-menu">
+
 
             <a href="#" class="active">
 
@@ -86,11 +100,13 @@
 
             </a>
 
+
             <a href="#">
 
                 Statistics
 
             </a>
+
 
             <a href="#">
 
@@ -98,11 +114,13 @@
 
             </a>
 
-            <a href="#">
+
+            <a href="{{ url_for('add_property') }}">
 
                 Properties
 
             </a>
+
 
             <a href="#">
 
@@ -111,7 +129,13 @@
             </a>
 
 
+
+
+
             <hr>
+
+
+
 
 
             <a href="#">
@@ -120,11 +144,13 @@
 
             </a>
 
+
             <a href="{{ url_for('logout') }}">
 
                 Log Out
 
             </a>
+
 
             <a href="#">
 
@@ -132,13 +158,21 @@
 
             </a>
 
+
+
         </nav>
+
 
     </aside>
 
 
 
-    
+
+
+
+
+
+
     <!-- MAIN CONTENT -->
 
 
@@ -146,11 +180,16 @@
 
 
 
-        <!-- Header -->
+
+
+        <!-- HEADER -->
+
 
         <header class="top-header">
 
+
             <div class="logo-section">
+
 
                 <h2>
 
@@ -158,31 +197,178 @@
 
                 </h2>
 
+
             </div>
+
 
 
 
             <div class="search-bar">
 
+
                 <input
                 type="text"
                 placeholder="Search properties...">
 
+
             </div>
+
+
 
         </header>
 
 
 
-        <!-- Analytics Row -->
+
+
+
+
+
+
+        <!-- SUMMARY CARDS -->
+
+
+        <section class="summary-row">
+
+
+
+            <div class="summary-card">
+
+
+                <h4>
+
+                    Total Properties
+
+                </h4>
+
+
+                <h2>
+
+                    {{ properties|length }}
+
+                </h2>
+
+
+                <p>
+
+                    Registered properties
+
+                </p>
+
+
+            </div>
+
+
+
+
+
+            <div class="summary-card">
+
+
+                <h4>
+
+                    Total Income
+
+                </h4>
+
+
+                <h2>
+
+                    $0
+
+                </h2>
+
+
+                <p>
+
+                    Monthly income
+
+                </p>
+
+
+            </div>
+
+
+
+
+
+            <div class="summary-card">
+
+
+                <h4>
+
+                    Total Expenses
+
+                </h4>
+
+
+                <h2>
+
+                    $0
+
+                </h2>
+
+
+                <p>
+
+                    Current expenses
+
+                </p>
+
+
+            </div>
+
+
+
+
+
+            <div class="summary-card">
+
+
+                <h4>
+
+                    Net Profit
+
+                </h4>
+
+
+                <h2>
+
+                    $0
+
+                </h2>
+
+
+                <p>
+
+                    Financial performance
+
+                </p>
+
+
+            </div>
+
+
+
+        </section>
+
+
+
+
+
+
+
+
+
+        <!-- GRAPH PLACEHOLDERS -->
+
 
         <section class="analytics-row">
 
 
 
-            <!-- GRAPH -->
-
             <div class="graph-card">
+
 
                 <h3>
 
@@ -190,35 +376,50 @@
 
                 </h3>
 
+
+
                 <div class="graph-placeholder">
+
 
                     Graph Coming Soon
 
+
                 </div>
 
+
+
             </div>
 
 
 
-            <!-- AI INSIGHT -->
 
-            <div class="ai-card">
+
+
+
+            <div class="graph-card">
+
 
                 <h3>
 
-                    AI Insight
+                    Property Statistics
 
                 </h3>
 
-                <p>
 
-                    Based on recent financial activity,
-                    Property PROP104 has generated a positive
-                    netProfit over the previous quarter.
 
-                </p>
+
+                <div class="graph-placeholder">
+
+
+                    Graph Coming Soon
+
+
+                </div>
+
+
 
             </div>
+
 
 
 
@@ -226,83 +427,7 @@
 
 
 
-        <!-- INFORMATION CARDS -->
 
-        <section class="info-row">
-
-
-
-            <div class="info-card">
-
-                <h3>
-
-                    Ownership Data
-
-                </h3>
-
-                <p>
-
-                    <strong>ownershipData</strong>
-
-                </p>
-
-                <p>
-
-                    SSRK PTY LTD
-
-                </p>
-
-                <br>
-
-                <p>
-
-                    <strong>propertyID</strong>
-
-                </p>
-
-                <p>
-
-                    PROP104
-
-                </p>
-
-            </div>
-
-
-
-
-            <div class="info-card">
-
-                <h3>
-
-                    Tenant Information
-
-                </h3>
-
-                <p>
-
-                    <strong>tenantInfo</strong>
-
-                </p>
-
-                <p>
-
-                    Baek Nakyum
-
-                </p>
-
-                <br>
-
-                <p>
-
-                    Lease Active
-
-                </p>
-
-            </div>
-
-
-        </section>
 
 
 
@@ -310,10 +435,22 @@
 
         <!-- PROPERTY CARDS -->
 
+
         <section class="property-section">
 
 
+
+
+
+            <!-- LOAD PROPERTIES FROM DATABASE -->
+
+
+            {% for property in properties %}
+
+
+
             <div class="property-card">
+
 
                 <div class="property-image">
 
@@ -321,97 +458,98 @@
 
                 </div>
 
+
+
                 <h4>
 
-                    propertyAddress
+                    {{ property[2] }}
 
                 </h4>
 
+
+
                 <p>
 
-                    123 Example Street
+                    ID: {{ property[0] }}
 
                 </p>
+
 
             </div>
 
 
 
+            {% endfor %}
 
-            <div class="property-card">
 
-                <div class="property-image">
 
-                    Property Image
+
+
+
+
+
+            <!-- ADD PROPERTY CARD -->
+
+
+            <div class="property-card add-property-card">
+
+
+
+                <div class="add-icon">
+
+                    +
 
                 </div>
 
+
+
                 <h4>
 
-                    propertyAddress
+                    Add Property
 
                 </h4>
 
+
+
                 <p>
 
-                    45 Collins Street
+                    Create a new property record
 
                 </p>
+
+
+
+
+
+                <a href="{{ url_for('add_property') }}">
+
+
+                    <button class="add-property-button">
+
+
+                        Add New
+
+
+                    </button>
+
+
+                </a>
+
+
+
 
             </div>
 
 
-
-
-            <div class="property-card">
-
-                <div class="property-image">
-
-                    Property Image
-
-                </div>
-
-                <h4>
-
-                    propertyAddress
-
-                </h4>
-
-                <p>
-
-                    18 Queen Road
-
-                </p>
-
-            </div>
-
-
-
-
-            <div class="property-card">
-
-                <div class="property-image">
-
-                    Property Image
-
-                </div>
-
-                <h4>
-
-                    propertyAddress
-
-                </h4>
-
-                <p>
-
-                    7 River Avenue
-
-                </p>
-
-            </div>
 
 
         </section>
+
+
+
+
+
+
 
 
 
@@ -419,7 +557,12 @@
 
 
 
+
+
 </div>
+
+
+
 
 
 </body>

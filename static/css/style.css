@@ -420,3 +420,104 @@ button{
     font-weight:500;
 
 }
+
+/* ADD PROPERTY */
+
+
+.property-container {
+
+    width: 450px;
+
+    margin: 80px auto;
+
+    background: #ffffff;
+
+    padding: 40px;
+
+    border-radius: 15px;
+
+}
+
+
+.property-container h1 {
+
+    color: #3e5a4c;
+
+    text-align: center;
+
+    font-family: Poppins, sans-serif;
+
+}
+
+
+
+.subtitle {
+
+    text-align:center;
+
+    color:#737373;
+
+    margin-bottom:30px;
+
+}
+
+
+
+.property-container label {
+
+    display:block;
+
+    margin-top:15px;
+
+    color:#3e5a4c;
+
+    font-weight:bold;
+
+}
+
+
+
+.property-container input {
+
+
+    width:100%;
+
+    padding:12px;
+
+    margin-top:8px;
+
+    border:1px solid #737373;
+
+    border-radius:8px;
+
+    box-sizing:border-box;
+
+}
+
+
+
+.property-container button {
+
+
+    width:100%;
+
+    margin-top:30px;
+
+    padding:14px;
+
+
+    background:#557b6e;
+
+    color:white;
+
+    border:none;
+
+    border-radius:10px;
+
+
+    font-size:16px;
+
+
+    cursor:pointer;
+
+}
