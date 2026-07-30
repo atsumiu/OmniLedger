@@ -42,9 +42,27 @@ CREATE TABLE IF NOT EXISTS Properties(
 
     propertyAddress TEXT NOT NULL,
 
+    propertyType TEXT NOT NULL,
+
     ownershipData TEXT NOT NULL,
 
-    tenantInfo TEXT,
+    tenantName TEXT,
+
+    leaseStatus TEXT,
+
+    leaseStart TEXT,
+
+    leaseEnd TEXT,
+
+    weeklyRent REAL,
+
+    bankAccount TEXT,
+
+    propertyValue REAL,
+
+    purchasePrice REAL,
+
+    notes TEXT,
 
     FOREIGN KEY(userID)
         REFERENCES Users(userID)
@@ -65,11 +83,13 @@ CREATE TABLE IF NOT EXISTS Transactions(
 
     transactionType TEXT NOT NULL,
 
+    category TEXT NOT NULL,
+
     amount REAL NOT NULL,
 
     date TEXT NOT NULL,
 
-    category TEXT NOT NULL,
+    paymentMethod TEXT,
 
     description TEXT,
 
@@ -84,13 +104,14 @@ CREATE TABLE IF NOT EXISTS Transactions(
 """)
 
 
-
 # REPORTS TABLE
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Reports(
 
     reportID INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    userID INTEGER NOT NULL,
 
     reportType TEXT,
 
@@ -108,7 +129,10 @@ CREATE TABLE IF NOT EXISTS Reports(
 
     roi REAL,
 
-    predictedInsights TEXT
+    predictedInsights TEXT,
+
+    FOREIGN KEY(userID)
+        REFERENCES Users(userID)
 
 )
 """)
@@ -122,13 +146,18 @@ CREATE TABLE IF NOT EXISTS MarketData(
 
     marketID INTEGER PRIMARY KEY AUTOINCREMENT,
 
-    searchCriteria TEXT,
+    suburb TEXT,
 
-    marketData TEXT
+    medianPrice REAL,
+
+    rentalYield REAL,
+
+    vacancyRate REAL,
+
+    lastUpdated TEXT
 
 )
 """)
-
 
 
 connection.commit()

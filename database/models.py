@@ -162,42 +162,82 @@ def generate_property_id():
     return f"PROP{new_number:03d}"
 
 
-# CREATE PROPERTY 
+# CREATE PROPERTY
+
 def create_property(
+
     userID,
     propertyAddress,
+    propertyType,
     ownershipData,
-    tenantInfo
+    tenantName,
+    leaseStatus,
+    leaseStart,
+    leaseEnd,
+    weeklyRent,
+    bankAccount,
+    propertyValue,
+    purchasePrice,
+    notes
+
 ):
 
     connection = connect_database()
+
     cursor = connection.cursor()
+
     propertyID = generate_property_id()
 
+
     cursor.execute("""
+
     INSERT INTO Properties(
 
         propertyID,
         userID,
         propertyAddress,
+        propertyType,
         ownershipData,
-        tenantInfo
+        tenantName,
+        leaseStatus,
+        leaseStart,
+        leaseEnd,
+        weeklyRent,
+        bankAccount,
+        propertyValue,
+        purchasePrice,
+        notes
 
     )
 
-    VALUES (?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 
     """,
+
     (
+
         propertyID,
         userID,
         propertyAddress,
+        propertyType,
         ownershipData,
-        tenantInfo
+        tenantName,
+        leaseStatus,
+        leaseStart,
+        leaseEnd,
+        weeklyRent,
+        bankAccount,
+        propertyValue,
+        purchasePrice,
+        notes
+
     ))
 
     connection.commit()
+
     connection.close()
+
+    return propertyID
 
 
 # READ PROPERTIES 
@@ -234,82 +274,117 @@ def get_properties(userID):
 
 
 
-# TRANSACTION FUNCTIONS (users can create and view transactions, system auto calculates gst)
+# TRANSACTION FUNCTIONS 
 
-# CREATE TRANSACTION (adds a new transaction into the database)
-
+# CREATE TRANSACTION
 
 def create_transaction(
+
     propertyID,
     transactionType,
+    category,
     amount,
     date,
-    category,
+    paymentMethod,
     description,
     attachment
-):
 
-    # CALCULATE GST VALUE (aus is 10%)
+):
 
     gstValue = amount * 0.10
 
 
-    # CONNECT TO DATABASE
-
     connection = connect_database()
 
     cursor = connection.cursor()
 
 
-
-    # INSERT TRANSACTION RECORD INTO DATABASE
-
     cursor.execute("""
+
     INSERT INTO Transactions(
+
         propertyID,
         transactionType,
+        category,
         amount,
         date,
-        category,
+        paymentMethod,
         description,
         attachment,
         gstValue
+
     )
 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 
     """,
+
     (
+
         propertyID,
         transactionType,
+        category,
         amount,
         date,
-        category,
+        paymentMethod,
         description,
         attachment,
         gstValue
+
     ))
-
-
-
-    # SAVE CHANGES
 
     connection.commit()
 
-
-    # CLOSE DATABASE CONNECTION
-
     connection.close()
 
 
 
+# DASHBOARD FINANCE CALCULATIONS
 
 
-# READ TRANSACTIONS (gets all financial transaction stored in the database)
+# GET TOTAL INCOME
 
-def get_transactions():
+def get_total_income(userID):
 
-    # CONNECT TO DATABASE
+    connection = connect_database()
+
+    cursor = connection.cursor()
+
+
+    cursor.execute("""
+
+    SELECT SUM(Transactions.amount)
+
+    FROM Transactions
+
+    JOIN Properties
+
+    ON Transactions.propertyID = Properties.propertyID
+
+    WHERE Properties.userID = ?
+
+    AND Transactions.transactionType = 'Income'
+
+    """,
+
+    (userID,))
+
+
+    result = cursor.fetchone()[0]
+
+
+    connection.close()
+
+
+    return result if result else 0
+
+
+
+
+
+# GET TOTAL EXPENSES
+
+def get_total_expenses(userID):
 
     connection = connect_database()
 
@@ -317,33 +392,58 @@ def get_transactions():
 
 
 
-    # RETRIEVE TRANSACTION RECORDS
-
     cursor.execute("""
-    SELECT * FROM Transactions
-    """)
+
+    SELECT SUM(Transactions.amount)
+
+    FROM Transactions
+
+    JOIN Properties
+
+    ON Transactions.propertyID = Properties.propertyID
+
+    WHERE Properties.userID = ?
+
+    AND Transactions.transactionType = 'Expense'
+
+    """,
+
+    (userID,))
 
 
 
-    transactions = cursor.fetchall()
+    result = cursor.fetchone()[0]
 
-
-
-    # CLOSE DATABASE CONNECTION
 
     connection.close()
 
 
-    return transactions
+    return result if result else 0
 
 
 
 
-# REPORT FUNCTIONS (stores processed info like income, expenses, profit, and roi)
 
-# CREATE REPORT (saves a generated report into the database)
+# GET NET PROFIT
+
+def get_net_profit(userID):
+
+
+    income = get_total_income(userID)
+
+
+    expenses = get_total_expenses(userID)
+
+
+    return income - expenses
+
+
+
+# CREATE REPORT
 
 def create_report(
+
+    userID,
     reportType,
     startDate,
     endDate,
@@ -353,7 +453,61 @@ def create_report(
     netProfit,
     roi,
     predictedInsights
+
 ):
+
+    connection = connect_database()
+
+    cursor = connection.cursor()
+
+
+    cursor.execute("""
+
+    INSERT INTO Reports(
+
+        userID,
+        reportType,
+        startDate,
+        endDate,
+        totalIncome,
+        totalExpense,
+        totalBills,
+        netProfit,
+        roi,
+        predictedInsights
+
+    )
+
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+    """,
+
+    (
+
+        userID,
+        reportType,
+        startDate,
+        endDate,
+        totalIncome,
+        totalExpense,
+        totalBills,
+        netProfit,
+        roi,
+        predictedInsights
+
+    ))
+
+    connection.commit()
+
+    connection.close()
+
+
+
+
+
+# READ REPORTS 
+
+def get_reports(userID):
 
     # CONNECT TO DATABASE
 
@@ -362,77 +516,21 @@ def create_report(
     cursor = connection.cursor()
 
 
-
-    # INSERT REPORT DATA
-
     cursor.execute("""
-    INSERT INTO Reports(
-        reportType,
-        startDate,
-        endDate,
-        totalIncome,
-        totalExpense,
-        totalBills,
-        netProfit,
-        roi,
-        predictedInsights
-    )
+    SELECT *
 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    FROM Reports
+
+    WHERE userID = ?
 
     """,
-    (
-        reportType,
-        startDate,
-        endDate,
-        totalIncome,
-        totalExpense,
-        totalBills,
-        netProfit,
-        roi,
-        predictedInsights
-    ))
 
-
-
-    # SAVE CHANGES
-
-    connection.commit()
-
-
-
-    # CLOSE DATABASE
-
-    connection.close()
-
-
-
-
-
-# READ REPORTS (gets all generated reports)
-def get_reports():
-
-    # Connect to database
-
-    connection = connect_database()
-
-    cursor = connection.cursor()
-
-
-
-    # RETRIEVE REPORTS
-
-    cursor.execute("""
-    SELECT * FROM Reports
-    """)
+    (userID,))
 
 
 
     reports = cursor.fetchall()
 
-
-
-    # CLOSE DATABASE
 
     connection.close()
 

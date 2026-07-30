@@ -1,74 +1,877 @@
 <!-- ADD PROPERTY PAGE -->
 
+
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
+
 
 <head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Add Property - OmniLedger</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- Poppins Font -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+
+    <!-- CSS -->
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/add_property.css') }}">
+
 
 </head>
+
 
 
 <body>
 
 
-<div class="property-container">
+<div class="dashboard-container">
 
 
-    <!-- TITLE -->
 
-    <h1>Add Property</h1>
+<!-- SIDEBAR -->
 
-    <p class="subtitle">
-        Enter property details below
+
+<aside class="sidebar">
+
+
+    <div class="user-profile">
+
+
+        <div class="profile-image">
+
+            👤
+
+        </div>
+
+
+        <p class="hello-text">
+
+            Hello!
+
+        </p>
+
+
+        <h3>
+
+            {{ session["name"] }}
+
+        </h3>
+
+
+    </div>
+
+
+
+
+    <div class="search-sidebar">
+
+
+        <input 
+        type="text"
+        placeholder="Search">
+
+
+    </div>
+
+
+
+
+
+    <nav class="sidebar-menu">
+
+
+        <a href="{{ url_for('dashboard') }}">
+
+            Dashboard
+
+        </a>
+
+
+        <a href="#">
+
+            Statistics
+
+        </a>
+
+
+        <a href="#">
+
+            Reports
+
+        </a>
+
+
+        <a href="{{ url_for('add_property') }}" class="active">
+
+            Properties
+
+        </a>
+
+
+        <a href="#">
+
+            AI Analytics
+
+        </a>
+
+
+        <hr>
+
+
+        <a href="#">
+
+            Settings
+
+        </a>
+
+
+        <a href="{{ url_for('logout') }}">
+
+            Log Out
+
+        </a>
+
+
+        <a href="#">
+
+            Help
+
+        </a>
+
+
+    </nav>
+
+
+</aside>
+
+
+
+
+
+
+
+<!-- MAIN CONTENT -->
+
+
+<main class="main-content">
+
+
+<div class="page-header">
+
+
+    <h1>
+
+        Add Property
+
+    </h1>
+
+
+    <p>
+
+        Create a New Property Profile. Please Fill in All Fields.
+
     </p>
-
-
-
-    <!-- PROPERTY FORM -->
-
-    <form method="POST">
-
-
-        <label>Property Address</label>
-
-        <input 
-        type="text"
-        name="propertyAddress"
-        placeholder="Enter property address"
-        required>
-
-
-        <label>Ownership Details</label>
-
-        <input 
-        type="text"
-        name="ownershipData"
-        placeholder="Enter ownership details"
-        required>
-
-
-        <label>Tenant Information</label>
-
-        <input 
-        type="text"
-        name="tenantInfo"
-        placeholder="Enter tenant information">
-
-
-        <button type="submit">
-            Add Property
-        </button>
-
-
-    </form>
 
 
 </div>
 
 
+
+
+
+<form method="POST">
+
+
+
+
+
+
+<!-- PROPERTY INFORMATION CARD -->
+
+
+<div class="form-card">
+
+
+<h2>
+
+Property Information
+
+</h2>
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+<label>
+
+Property Address
+
+</label>
+
+
+<input
+
+type="text"
+
+name="propertyAddress"
+
+placeholder="Enter property address"
+
+required>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+
+Property Type
+
+</label>
+
+
+<select name="propertyType" required>
+
+
+<option value="">
+
+Select property type
+
+</option>
+
+
+<option value="House">
+
+House
+
+</option>
+
+
+<option value="Apartment">
+
+Apartment
+
+</option>
+
+
+<option value="Townhouse">
+
+Townhouse
+
+</option>
+
+
+<option value="Office">
+
+Office
+
+</option>
+
+
+<option value="Retail">
+
+Retail
+
+</option>
+
+
+<option value="Warehouse">
+
+Warehouse
+
+</option>
+
+
+</select>
+
+</div>
+
+
+
+
+<div class="full-width">
+
+
+<label>
+
+Ownership Details
+
+</label>
+
+
+<input
+
+type="text"
+
+name="ownershipData"
+
+placeholder="Enter ownership details"
+
+required>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<!-- TENANT CARD -->
+
+
+<div class="form-card">
+
+
+<h2>
+
+Tenant & Lease Information
+
+</h2>
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Tenant Name
+
+</label>
+
+
+<input
+
+type="text"
+
+name="tenantName"
+
+placeholder="Enter tenant name">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Lease Status
+
+</label>
+
+
+<select name="leaseStatus">
+
+
+<option value="Active">
+
+Active
+
+</option>
+
+
+<option value="Vacant">
+
+Vacant
+
+</option>
+
+
+<option value="Expired">
+
+Expired
+
+</option>
+
+
+<option value="Pending">
+
+Pending
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Lease Start Date
+
+</label>
+
+
+<input
+
+type="date"
+
+name="leaseStart">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Lease End Date
+
+</label>
+
+
+<input
+
+type="date"
+
+name="leaseEnd">
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+<!-- FINANCIAL INFORMATION CARD -->
+
+
+<div class="form-card">
+
+
+<h2>
+
+Financial Information
+
+</h2>
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Weekly Rent ($)
+
+</label>
+
+
+<input
+
+type="number"
+
+name="weeklyRent"
+
+placeholder="Example: 650"
+
+step="0.01">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Bank Account
+
+</label>
+
+
+<input
+
+type="text"
+
+name="bankAccount"
+
+placeholder="Example: Commonwealth Bank">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Property Value ($)
+
+</label>
+
+
+<input
+
+type="number"
+
+name="propertyValue"
+
+placeholder="Example: 700000"
+
+step="0.01">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Purchase Price ($)
+
+</label>
+
+
+<input
+
+type="number"
+
+name="purchasePrice"
+
+placeholder="Example: 650000"
+
+step="0.01">
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- INITIAL TRANSACTION CARD -->
+
+
+<div class="form-card">
+
+
+<h2>
+
+Initial Financial Record
+
+</h2>
+
+
+
+<div class="form-grid">
+
+
+
+<div>
+
+
+<label>
+
+Transaction Type
+
+</label>
+
+
+<select name="transactionType">
+
+
+<option value="Income">
+
+Rental Income
+
+</option>
+
+
+<option value="Expense">
+
+Expense
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Amount ($)
+
+</label>
+
+
+<input
+
+type="number"
+
+name="transactionAmount"
+
+placeholder="Example: 650"
+
+step="0.01">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Transaction Date
+
+</label>
+
+
+<input
+
+type="date"
+
+name="transactionDate">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Category
+
+</label>
+
+
+<select name="transactionCategory">
+
+
+<option value="Rent">
+
+Rent
+
+</option>
+
+
+<option value="Maintenance">
+
+Maintenance
+
+</option>
+
+
+<option value="Insurance">
+
+Insurance
+
+</option>
+
+
+<option value="Mortgage">
+
+Mortgage
+
+</option>
+
+
+<option value="Other">
+
+Other
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div class="full-width">
+
+
+<label>
+
+Description
+
+</label>
+
+
+<textarea
+
+name="transactionDescription"
+
+placeholder="Example: Monthly tenant payment">
+
+</textarea>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- NOTES CARD -->
+
+
+<div class="form-card">
+
+
+<h2>
+
+Additional Notes
+
+</h2>
+
+
+
+<textarea
+
+name="notes"
+
+placeholder="Add extra property information">
+
+</textarea>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<button class="submit-button" type="submit">
+
+
+Add Property
+
+
+</button>
+
+
+
+
+
+</form>
+
+
+
+</main>
+
+
+
+</div>
+
+
+
 </body>
+
 
 </html>

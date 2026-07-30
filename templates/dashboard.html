@@ -179,7 +179,23 @@
     <main class="main-content">
 
 
+        {% with messages = get_flashed_messages(with_categories=true) %}
 
+            {% for category, message in messages %}
+
+                {% if category == "success" %}
+
+                    <p class="success-message">
+
+                        {{ message }}
+
+                    </p>
+
+                {% endif %}
+
+            {% endfor %}
+
+        {% endwith %}
 
 
         <!-- HEADER -->
@@ -274,7 +290,7 @@
 
                 <h2>
 
-                    $0
+                    ${{ "%.2f"|format(totalIncome) }}
 
                 </h2>
 
@@ -304,7 +320,7 @@
 
                 <h2>
 
-                    $0
+                    ${{ "%.2f"|format(totalExpenses) }}
 
                 </h2>
 
@@ -334,7 +350,7 @@
 
                 <h2>
 
-                    $0
+                    ${{ "%.2f"|format(netProfit) }}
 
                 </h2>
 
@@ -442,7 +458,7 @@
 
 
 
-            <!-- LOAD PROPERTIES FROM DATABASE -->
+            <!-- DATABASE PROPERTY CARDS -->
 
 
             {% for property in properties %}
@@ -452,27 +468,95 @@
             <div class="property-card">
 
 
+
                 <div class="property-image">
 
-                    Property Image
+                    🏠
 
                 </div>
 
 
 
-                <h4>
+
+                <h3>
 
                     {{ property[2] }}
 
-                </h4>
+                </h3>
+
 
 
 
                 <p>
 
-                    ID: {{ property[0] }}
+                    <strong>Property ID:</strong>
+
+                    {{ property[0] }}
 
                 </p>
+
+
+
+                <p>
+
+                    <strong>Type:</strong>
+
+                    {{ property[3] }}
+
+                </p>
+
+
+
+
+                <p>
+
+                    <strong>Tenant:</strong>
+
+                    {{ property[5] if property[5] else "Vacant" }}
+
+                </p>
+
+
+
+
+                <p>
+
+                    <strong>Lease:</strong>
+
+                    {{ property[6] if property[6] else "No Lease" }}
+
+                </p>
+
+
+
+
+                <p>
+
+                    <strong>Weekly Rent:</strong>
+
+                    ${{ property[9] if property[9] else "0" }}
+
+                </p>
+
+
+
+
+                <p>
+
+                    <strong>Value:</strong>
+
+                    ${{ property[11] if property[11] else "0" }}
+
+                </p>
+
+
+
+                <button class="view-property-button">
+
+                    View Details
+
+                </button>
+
 
 
             </div>
@@ -480,6 +564,7 @@
 
 
             {% endfor %}
+
 
 
 
@@ -503,11 +588,11 @@
 
 
 
-                <h4>
+                <h3>
 
                     Add Property
 
-                </h4>
+                </h3>
 
 
 
