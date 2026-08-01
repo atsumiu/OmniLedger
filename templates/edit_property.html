@@ -1,0 +1,742 @@
+<!-- Purpose: Edit Property Page -->
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>Edit Property - OmniLedger</title>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/add_property.css') }}">
+
+
+</head>
+
+
+
+
+<body>
+
+
+
+<div class="dashboard-container">
+
+
+
+<!-- SIDEBAR -->
+
+
+<aside class="sidebar">
+
+
+<div class="user-profile">
+
+
+<div class="profile-image">
+
+👤
+
+</div>
+
+
+<p class="hello-text">
+
+Hello!
+
+</p>
+
+
+<h3>
+
+{{ session["name"] }}
+
+</h3>
+
+
+</div>
+
+
+
+
+
+<div class="search-sidebar">
+
+
+<input type="text" placeholder="Search">
+
+
+</div>
+
+
+
+
+
+<nav class="sidebar-menu">
+
+
+<a href="{{ url_for('dashboard') }}">
+
+Dashboard
+
+</a>
+
+
+
+<a href="#">
+
+Statistics
+
+</a>
+
+
+
+<a href="#">
+
+Reports
+
+</a>
+
+
+
+<a href="{{ url_for('dashboard') }}" class="active">
+
+Properties
+
+</a>
+
+
+
+<a href="#">
+
+AI Analytics
+
+</a>
+
+
+
+<hr>
+
+
+
+<a href="#">
+
+Settings
+
+</a>
+
+
+
+<a href="{{ url_for('logout') }}">
+
+Log Out
+
+</a>
+
+
+
+<a href="#">
+
+Help
+
+</a>
+
+
+</nav>
+
+
+</aside>
+
+
+
+
+
+
+
+
+
+<!-- MAIN CONTENT -->
+
+
+<main class="main-content">
+
+
+
+
+
+<div class="page-header">
+
+
+<h1>
+
+Edit Property
+
+</h1>
+
+
+<p>
+
+Update existing property information.
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<form method="POST">
+
+
+
+
+
+
+
+<!-- PROPERTY INFORMATION -->
+
+
+<div class="form-card">
+
+
+<h2>
+
+Property Information
+
+</h2>
+
+
+
+<div class="form-grid">
+
+
+
+
+
+<div>
+
+
+<label>
+
+Property Address
+
+</label>
+
+
+<input
+
+type="text"
+
+name="propertyAddress"
+
+value="{{ property[2] }}"
+
+required>
+
+
+</div>
+
+
+
+
+
+
+
+
+<div>
+
+
+<label>
+
+Property Type
+
+</label>
+
+
+<select name="propertyType">
+
+
+
+<option value="House"
+
+{% if property[3] == "House" %}selected{% endif %}>
+
+House
+
+</option>
+
+
+
+
+<option value="Apartment"
+
+{% if property[3] == "Apartment" %}selected{% endif %}>
+
+Apartment
+
+</option>
+
+
+
+<option value="Townhouse"
+
+{% if property[3] == "Townhouse" %}selected{% endif %}>
+
+Townhouse
+
+</option>
+
+
+
+<option value="Office"
+
+{% if property[3] == "Office" %}selected{% endif %}>
+
+Office
+
+</option>
+
+
+
+<option value="Retail"
+
+{% if property[3] == "Retail" %}selected{% endif %}>
+
+Retail
+
+</option>
+
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+<div class="full-width">
+
+
+<label>
+
+Ownership Details
+
+</label>
+
+
+<input
+
+type="text"
+
+name="ownershipData"
+
+value="{{ property[4] }}">
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- TENANT INFORMATION -->
+
+
+<div class="form-card">
+
+
+<h2>
+
+Tenant & Lease Information
+
+</h2>
+
+
+
+<div class="form-grid">
+
+
+
+
+
+<div>
+
+
+<label>
+
+Tenant Name
+
+</label>
+
+
+<input
+
+type="text"
+
+name="tenantName"
+
+value="{{ property[5] }}">
+
+
+</div>
+
+
+
+
+
+
+
+<div>
+
+
+<label>
+
+Lease Status
+
+</label>
+
+
+<select name="leaseStatus">
+
+
+<option value="Active"
+
+{% if property[6] == "Active" %}selected{% endif %}>
+
+Active
+
+</option>
+
+
+<option value="Vacant"
+
+{% if property[6] == "Vacant" %}selected{% endif %}>
+
+Vacant
+
+</option>
+
+
+<option value="Expired"
+
+{% if property[6] == "Expired" %}selected{% endif %}>
+
+Expired
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+<div>
+
+
+<label>
+
+Lease Start
+
+</label>
+
+
+<input
+
+type="date"
+
+name="leaseStart"
+
+value="{{ property[7] }}">
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+<label>
+
+Lease End
+
+</label>
+
+
+<input
+
+type="date"
+
+name="leaseEnd"
+
+value="{{ property[8] }}">
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- FINANCIAL INFORMATION -->
+
+
+<div class="form-card">
+
+
+<h2>
+
+Financial Information
+
+</h2>
+
+
+
+<div class="form-grid">
+
+
+
+
+
+
+<div>
+
+
+<label>
+
+Weekly Rent ($)
+
+</label>
+
+
+<input
+
+type="number"
+
+name="weeklyRent"
+
+value="{{ property[9] }}">
+
+
+</div>
+
+
+
+
+
+
+
+<div>
+
+
+<label>
+
+Bank Account
+
+</label>
+
+
+<input
+
+type="text"
+
+name="bankAccount"
+
+value="{{ property[10] }}">
+
+
+</div>
+
+
+
+
+
+
+
+<div>
+
+
+<label>
+
+Property Value ($)
+
+</label>
+
+
+<input
+
+type="number"
+
+name="propertyValue"
+
+value="{{ property[11] }}">
+
+
+</div>
+
+
+
+
+
+
+
+<div>
+
+
+<label>
+
+Purchase Price ($)
+
+</label>
+
+
+<input
+
+type="number"
+
+name="purchasePrice"
+
+value="{{ property[12] }}">
+
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- NOTES -->
+
+
+<div class="form-card">
+
+
+<h2>
+
+Additional Notes
+
+</h2>
+
+
+<textarea
+
+name="notes">
+
+{{ property[13] }}
+
+</textarea>
+
+
+</div>
+
+
+
+
+
+
+
+<button class="submit-button" type="submit">
+
+Save Changes
+
+</button>
+
+
+
+
+
+
+</form>
+
+
+
+
+
+</main>
+
+
+
+
+
+
+</div>
+
+
+
+
+</body>
+
+
+</html>

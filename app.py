@@ -1,7 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from datetime import datetime
-from database.models import create_user, check_user, create_property, create_transaction
-
+from database.models import (
+    create_user,
+    check_user,
+    create_property,
+    create_transaction,
+    get_property,
+    get_transactions,
+    update_property
+)
 
 # CREATING FLASK
 app = Flask(__name__)
@@ -91,6 +98,24 @@ def dashboard():
 
     )
 
+
+#PROPERTY DETAILS
+@app.route("/property/<propertyID>")
+def property_details(propertyID):
+
+    property = get_property(propertyID)
+
+    if property is None:
+
+        return redirect(url_for("dashboard"))
+
+    transactions = get_transactions(propertyID)
+
+    return render_template(
+        "property_details.html",
+        property=property,
+        transactions=transactions
+    )
 
 
 # LOGOUT
@@ -196,16 +221,15 @@ def add_property():
 
 
 
-        # FINANCIAL INFORMATION
-
+        # FINANCIAL INFORMATION (OPTIONAL)
 
         try:
 
-            weeklyRent = float(request.form["weeklyRent"] or 0)
+            weeklyRent = float(request.form.get("weeklyRent", 0) or 0)
 
-            propertyValue = float(request.form["propertyValue"] or 0)
+            propertyValue = float(request.form.get("propertyValue", 0) or 0)
 
-            purchasePrice = float(request.form["purchasePrice"] or 0)
+            purchasePrice = float(request.form.get("purchasePrice", 0) or 0)
 
 
         except ValueError:
@@ -228,33 +252,9 @@ def add_property():
 
 
 
+        bankAccount = request.form.get("bankAccount", "").strip()
 
-
-        bankAccount = request.form["bankAccount"].strip()
-
-        notes = request.form["notes"].strip()
-
-        transactionType = request.form["transactionType"]
-
-        transactionCategory = request.form["transactionCategory"]
-
-        transactionDate = request.form["transactionDate"]
-
-        transactionDescription = request.form["transactionDescription"].strip()
-
-
-        try:
-
-            transactionAmount = float(request.form["transactionAmount"] or 0)
-
-
-        except ValueError:
-
-            flash("Transaction amount must be a number.", "error")
-
-            return redirect(url_for("add_property"))
-
-
+        notes = request.form.get("notes", "").strip()
 
 
         # CURRENT USER
@@ -298,30 +298,6 @@ def add_property():
         )
 
 
-        if transactionAmount > 0:
-
-
-            create_transaction(
-
-                propertyID,
-
-                transactionType,
-
-                transactionCategory,
-
-                transactionAmount,
-
-                transactionDate,
-
-                bankAccount,
-
-                transactionDescription,
-
-                ""
-
-            )
-
-
 
         flash("Property successfully added!", "success")
 
@@ -329,12 +305,175 @@ def add_property():
 
 
 
-    
-
-
-
+    # SHOW ADD PROPERTY PAGE
 
     return render_template("add_property.html")
+
+
+# EDIT PROPERTY
+
+@app.route("/edit_property/<propertyID>", methods=["GET", "POST"])
+def edit_property(propertyID):
+
+
+    property = get_property(propertyID)
+
+
+    if request.method == "POST":
+
+
+        propertyAddress = request.form["propertyAddress"]
+
+        propertyType = request.form["propertyType"]
+
+        ownershipData = request.form["ownershipData"]
+
+        tenantName = request.form["tenantName"]
+
+        leaseStatus = request.form["leaseStatus"]
+
+        leaseStart = request.form["leaseStart"]
+
+        leaseEnd = request.form["leaseEnd"]
+
+        weeklyRent = request.form["weeklyRent"]
+
+        bankAccount = request.form["bankAccount"]
+
+        propertyValue = request.form["propertyValue"]
+
+        purchasePrice = request.form["purchasePrice"]
+
+        notes = request.form["notes"]
+
+
+
+        update_property(
+
+            propertyID,
+
+            propertyAddress,
+
+            propertyType,
+
+            ownershipData,
+
+            tenantName,
+
+            leaseStatus,
+
+            leaseStart,
+
+            leaseEnd,
+
+            weeklyRent,
+
+            bankAccount,
+
+            propertyValue,
+
+            purchasePrice,
+
+            notes
+
+        )
+
+
+        flash("Property updated successfully!", "success")
+
+
+        return redirect(
+
+            url_for(
+
+                "property_details",
+
+                propertyID=propertyID
+
+            )
+
+        )
+
+
+
+    return render_template(
+
+        "edit_property.html",
+
+        property=property
+
+    )
+
+
+
+# ADD TRANSACTION
+
+@app.route("/add_transaction/<propertyID>", methods=["GET", "POST"])
+def add_transaction(propertyID):
+
+
+    if request.method == "POST":
+
+
+        transactionType = request.form["transactionType"]
+
+        category = request.form["category"]
+
+        amount = float(request.form["amount"])
+
+        date = request.form["date"]
+
+        paymentMethod = request.form["paymentMethod"]
+
+        description = request.form["description"]
+
+
+
+        create_transaction(
+
+            propertyID,
+
+            transactionType,
+
+            category,
+
+            amount,
+
+            date,
+
+            paymentMethod,
+
+            description,
+
+            None
+
+        )
+
+
+        flash("Transaction successfully added!", "success")
+
+
+        return redirect(
+            url_for(
+                "property_details",
+                propertyID=propertyID
+            )
+        )
+
+
+
+    return render_template(
+        "add_transaction.html",
+        propertyID=propertyID
+    )
+
+
+
+
+    return render_template(
+    "add_transaction.html",
+    propertyID=propertyID
+    )
 
 
 # RUN WEBSITE

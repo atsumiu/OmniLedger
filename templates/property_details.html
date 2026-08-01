@@ -1,0 +1,738 @@
+<!-- Purpose: Property Management Details Page -->
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>Property Details - OmniLedger</title>
+
+
+    <!-- Poppins Font -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+
+    <!-- CSS -->
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/property_details.css') }}">
+
+
+</head>
+
+
+
+<body>
+
+
+
+<div class="dashboard-container">
+
+
+
+
+
+<!-- SIDEBAR -->
+
+
+<aside class="sidebar">
+
+
+    <div class="user-profile">
+
+
+        <div class="profile-image">
+
+            👤
+
+        </div>
+
+
+        <p class="hello-text">
+
+            Hello!
+
+        </p>
+
+
+        <h3>
+
+            {{ session["name"] }}
+
+        </h3>
+
+
+    </div>
+
+
+
+
+    <div class="search-sidebar">
+
+
+        <input 
+        type="text"
+        placeholder="Search">
+
+
+    </div>
+
+
+
+
+
+    <nav class="sidebar-menu">
+
+
+        <a href="{{ url_for('dashboard') }}">
+
+            Dashboard
+
+        </a>
+
+
+
+        <a href="#">
+
+            Statistics
+
+        </a>
+
+
+
+        <a href="#">
+
+            Reports
+
+        </a>
+
+
+
+        <a href="{{ url_for('dashboard') }}" class="active">
+
+            Properties
+
+        </a>
+
+
+
+        <a href="#">
+
+            AI Analytics
+
+        </a>
+
+
+
+        <hr>
+
+
+
+        <a href="#">
+
+            Settings
+
+        </a>
+
+
+
+        <a href="{{ url_for('logout') }}">
+
+            Log Out
+
+        </a>
+
+
+
+        <a href="#">
+
+            Help
+
+        </a>
+
+
+
+    </nav>
+
+
+</aside>
+
+
+
+
+
+
+
+
+
+<!-- MAIN CONTENT -->
+
+
+<main class="main-content">
+
+
+
+
+
+<!-- HEADER -->
+
+
+<header class="top-header">
+
+
+    <div class="logo-section">
+
+
+        <h2>
+
+            Property Details
+
+        </h2>
+
+
+    </div>
+
+
+
+</header>
+
+
+
+
+
+
+
+<!-- BACK BUTTON -->
+
+
+<a href="{{ url_for('dashboard') }}">
+
+    ← Back to Dashboard
+
+</a>
+
+
+
+
+
+
+
+<!-- PROPERTY TITLE -->
+
+
+<section class="property-header">
+
+
+    <h1>
+
+        {{ property[2] }}
+
+    </h1>
+
+
+    <p>
+
+        Property ID: {{ property[0] }}
+
+    </p>
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ACTION BUTTONS -->
+
+
+<div class="property-actions">
+
+
+    <a href="{{ url_for('edit_property', propertyID=property[0]) }}">
+
+        <button class="add-property-button">
+
+            ✏ Edit Property
+
+        </button>
+
+    </a>
+
+
+
+    <a href="{{ url_for('add_transaction', propertyID=property[0]) }}">
+
+        <button class="add-property-button">
+
+            + Add Transaction
+
+        </button>
+
+    </a>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- SUMMARY CARDS -->
+
+
+<section class="summary-row">
+
+
+
+<div class="summary-card">
+
+
+<h4>
+
+Property Type
+
+</h4>
+
+
+<h2>
+
+{{ property[3] }}
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+<div class="summary-card">
+
+
+<h4>
+
+Weekly Rent
+
+</h4>
+
+
+<h2>
+
+${{ property[9] if property[9] else "0" }}
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="summary-card">
+
+
+<h4>
+
+Property Value
+
+</h4>
+
+
+<h2>
+
+${{ property[11] if property[11] else "0" }}
+
+</h2>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="summary-card">
+
+
+<h4>
+
+Lease Status
+
+</h4>
+
+
+<h2>
+
+{{ property[6] }}
+
+</h2>
+
+
+</div>
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- PROPERTY INFORMATION -->
+
+
+<section class="graph-card">
+
+
+<h3>
+
+Property Information
+
+</h3>
+
+
+
+
+<p>
+
+<strong>Ownership:</strong>
+
+{{ property[4] }}
+
+</p>
+
+
+
+
+<p>
+
+<strong>Tenant:</strong>
+
+{{ property[5] if property[5] else "Vacant" }}
+
+</p>
+
+
+
+
+<p>
+
+<strong>Lease Start:</strong>
+
+{{ property[7] if property[7] else "N/A" }}
+
+</p>
+
+
+
+
+<p>
+
+<strong>Lease End:</strong>
+
+{{ property[8] if property[8] else "N/A" }}
+
+</p>
+
+
+
+
+<p>
+
+<strong>Bank Account:</strong>
+
+{{ property[10] if property[10] else "N/A" }}
+
+</p>
+
+
+
+
+
+<p>
+
+<strong>Notes:</strong>
+
+{{ property[13] if property[13] else "No notes added." }}
+
+</p>
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- FINANCIAL SECTION -->
+
+
+<section class="summary-row">
+
+
+
+<div class="summary-card">
+
+
+<h4>
+
+Total Income
+
+</h4>
+
+
+<h2>
+
+$0.00
+
+</h2>
+
+
+<p>
+
+From transactions
+
+</p>
+
+
+</div>
+
+
+
+
+
+<div class="summary-card">
+
+
+<h4>
+
+Total Expenses
+
+</h4>
+
+
+<h2>
+
+$0.00
+
+</h2>
+
+
+<p>
+
+From transactions
+
+</p>
+
+
+</div>
+
+
+
+
+
+<div class="summary-card">
+
+
+<h4>
+
+Net Profit
+
+</h4>
+
+
+<h2>
+
+$0.00
+
+</h2>
+
+
+<p>
+
+Income - Expenses
+
+</p>
+
+
+</div>
+
+
+
+
+
+<div class="summary-card">
+
+
+<h4>
+
+ROI
+
+</h4>
+
+
+<h2>
+
+0%
+
+</h2>
+
+
+<p>
+
+Return on investment
+
+</p>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- TRANSACTIONS -->
+
+
+<section class="graph-card">
+
+
+<div style="display:flex; justify-content:space-between; align-items:center;">
+
+
+<h3>
+
+Transaction History
+
+</h3>
+
+
+
+<a href="{{ url_for('add_transaction', propertyID=property[0]) }}">
+
+    <button class="add-property-button">
+
+        +
+    </button>
+</a>    
+
+</div>
+
+
+
+
+
+{% for transaction in transactions %}
+
+
+
+<p>
+
+
+<strong>
+
+{{ transaction[4] }}
+
+</strong>
+
+
+-
+
+{{ transaction[2] }}
+
+
+-
+
+${{ transaction[3] }}
+
+
+
+</p>
+
+
+
+
+{% else %}
+
+
+
+<p>
+
+No transactions recorded yet.
+
+</p>
+
+
+
+{% endfor %}
+
+
+
+
+
+</section>
+
+
+
+
+
+
+</main>
+
+
+
+</div>
+
+
+
+
+</body>
+
+
+</html>

@@ -240,14 +240,91 @@ def create_property(
     return propertyID
 
 
-# READ PROPERTIES 
+# UPDATE PROPERTY
+
+def update_property(
+
+    propertyID,
+    propertyAddress,
+    propertyType,
+    ownershipData,
+    tenantName,
+    leaseStatus,
+    leaseStart,
+    leaseEnd,
+    weeklyRent,
+    bankAccount,
+    propertyValue,
+    purchasePrice,
+    notes
+
+):
+
+
+    conn = connect_database()
+
+    cursor = conn.cursor()
+
+
+
+    cursor.execute(
+    """
+
+    UPDATE Properties
+
+    SET
+
+        propertyAddress=?,
+        propertyType=?,
+        ownershipData=?,
+        tenantName=?,
+        leaseStatus=?,
+        leaseStart=?,
+        leaseEnd=?,
+        weeklyRent=?,
+        bankAccount=?,
+        propertyValue=?,
+        purchasePrice=?,
+        notes=?
+
+    WHERE propertyID=?
+
+
+    """,
+
+    (
+
+        propertyAddress,
+        propertyType,
+        ownershipData,
+        tenantName,
+        leaseStatus,
+        leaseStart,
+        leaseEnd,
+        weeklyRent,
+        bankAccount,
+        propertyValue,
+        purchasePrice,
+        notes,
+        propertyID
+
+    ))
+
+
+
+    conn.commit()
+
+    conn.close()
+
+
+
+# READ PROPERTIES
 
 def get_properties(userID):
 
     conn = connect_database()
 
     cursor = conn.cursor()
-
 
     cursor.execute(
         """
@@ -256,20 +333,43 @@ def get_properties(userID):
         FROM Properties
 
         WHERE userID = ?
-
         """,
 
         (userID,)
     )
 
-
     properties = cursor.fetchall()
-
 
     conn.close()
 
-
     return properties
+
+
+# GET PROPERTY
+
+def get_property(propertyID):
+
+    connection = connect_database()
+
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        SELECT *
+
+        FROM Properties
+
+        WHERE propertyID = ?
+        """,
+
+        (propertyID,)
+    )
+
+    property = cursor.fetchone()
+
+    connection.close()
+
+    return property
 
 
 
@@ -293,16 +393,12 @@ def create_transaction(
 
     gstValue = amount * 0.10
 
-
     connection = connect_database()
 
     cursor = connection.cursor()
 
-
     cursor.execute("""
-
     INSERT INTO Transactions(
-
         propertyID,
         transactionType,
         category,
@@ -312,15 +408,12 @@ def create_transaction(
         description,
         attachment,
         gstValue
-
     )
 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-
     """,
 
     (
-
         propertyID,
         transactionType,
         category,
@@ -330,12 +423,40 @@ def create_transaction(
         description,
         attachment,
         gstValue
-
     ))
 
     connection.commit()
 
     connection.close()
+
+
+# GET TRANSACTIONS
+
+def get_transactions(propertyID):
+
+    connection = connect_database()
+
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        SELECT *
+
+        FROM Transactions
+
+        WHERE propertyID = ?
+
+        ORDER BY date DESC
+        """,
+
+        (propertyID,)
+    )
+
+    transactions = cursor.fetchall()
+
+    connection.close()
+
+    return transactions
 
 
 

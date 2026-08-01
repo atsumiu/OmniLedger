@@ -1,0 +1,460 @@
+<!-- Purpose: Add Transaction Page -->
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>Add Transaction - OmniLedger</title>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/add_property.css') }}">
+
+
+</head>
+
+
+
+<body>
+
+
+
+<div class="dashboard-container">
+
+
+
+
+<!-- SIDEBAR -->
+
+
+<aside class="sidebar">
+
+
+<div class="user-profile">
+
+
+<div class="profile-image">
+
+👤
+
+</div>
+
+
+<p class="hello-text">
+
+Hello!
+
+</p>
+
+
+<h3>
+
+{{ session["name"] }}
+
+</h3>
+
+
+</div>
+
+
+
+
+
+<nav class="sidebar-menu">
+
+
+<a href="{{ url_for('dashboard') }}">
+
+Dashboard
+
+</a>
+
+
+<a href="#">
+
+Statistics
+
+</a>
+
+
+<a href="#">
+
+Reports
+
+</a>
+
+
+<a href="{{ url_for('dashboard') }}" class="active">
+
+Properties
+
+</a>
+
+
+<a href="#">
+
+AI Analytics
+
+</a>
+
+
+<hr>
+
+
+<a href="#">
+
+Settings
+
+</a>
+
+
+<a href="{{ url_for('logout') }}">
+
+Log Out
+
+</a>
+
+
+<a href="#">
+
+Help
+
+</a>
+
+
+
+</nav>
+
+
+
+</aside>
+
+
+
+
+
+
+
+
+
+<!-- MAIN CONTENT -->
+
+
+<main class="main-content">
+
+
+
+
+
+<div class="page-header">
+
+
+<h1>
+
+Add Transaction
+
+</h1>
+
+
+<p>
+
+Record income or expenses for this property.
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<form method="POST">
+
+
+
+
+
+
+<div class="form-card">
+
+
+<h2>
+
+Transaction Information
+
+</h2>
+
+
+
+<div class="form-grid">
+
+
+
+
+
+<div>
+
+
+<label>
+
+Transaction Type
+
+</label>
+
+
+<select name="transactionType">
+
+
+<option value="Income">
+
+Income
+
+</option>
+
+
+<option value="Expense">
+
+Expense
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+
+<div>
+
+
+<label>
+
+Category
+
+</label>
+
+
+<select name="category">
+
+
+<option value="Rent">
+
+Rent
+
+</option>
+
+
+<option value="Insurance">
+
+Insurance
+
+</option>
+
+
+<option value="Maintenance">
+
+Maintenance
+
+</option>
+
+
+<option value="Mortgage">
+
+Mortgage
+
+</option>
+
+
+<option value="Other">
+
+Other
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+
+
+<div>
+
+
+<label>
+
+Amount ($)
+
+</label>
+
+
+<input
+
+type="number"
+
+name="amount"
+
+step="0.01"
+
+placeholder="Example: 650"
+
+required>
+
+
+</div>
+
+
+
+
+
+
+
+<div>
+
+
+<label>
+
+Date
+
+</label>
+
+
+<input
+
+type="date"
+
+name="date"
+
+required>
+
+
+</div>
+
+
+
+
+
+
+
+<div>
+
+
+<label>
+
+Payment Method
+
+</label>
+
+
+<input
+
+type="text"
+
+name="paymentMethod"
+
+placeholder="Example: Bank Transfer">
+
+
+</div>
+
+
+
+
+
+<div class="full-width">
+
+
+<label>
+
+Description
+
+</label>
+
+
+<textarea
+
+name="description"
+
+placeholder="Example: Monthly rental payment">
+
+</textarea>
+
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<button class="submit-button" type="submit">
+
+Add Transaction
+
+</button>
+
+
+
+
+
+</form>
+
+
+
+
+
+</main>
+
+
+
+</div>
+
+
+
+</body>
+
+
+</html>
