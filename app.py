@@ -1,5 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from datetime import datetime
+from utils.calculations import (
+    calculate_rental_roi,
+    calculate_total_roi
+)
 from database.models import (
     create_user,
     check_user,
@@ -7,7 +11,9 @@ from database.models import (
     create_transaction,
     get_property,
     get_transactions,
-    update_property
+    update_property,
+    get_property_expenses,
+    get_property_income
 )
 
 # CREATING FLASK
@@ -15,8 +21,6 @@ app = Flask(__name__)
 
 # STORE LOGIN SESSION
 app.secret_key = "omniledger_secret_key"
-
-
 
 
 # LOGIN 
@@ -58,7 +62,8 @@ def login():
     return render_template("login.html")
 
 
-#DASHBOARD
+# DASHBOARD
+# DASHBOARD
 @app.route("/dashboard")
 def dashboard():
 
@@ -69,53 +74,71 @@ def dashboard():
         get_net_profit
     )
 
-
     userID = session["userID"]
-
 
     properties = get_properties(userID)
 
+    total_income = get_total_income(userID)
 
-    totalIncome = get_total_income(userID)
+    total_expenses = get_total_expenses(userID)
 
-    totalExpenses = get_total_expenses(userID)
-
-    netProfit = get_net_profit(userID)
-
+    net_profit = get_net_profit(userID)
 
 
     return render_template(
-
         "dashboard.html",
-
         properties=properties,
-
-        totalIncome=totalIncome,
-
-        totalExpenses=totalExpenses,
-
-        netProfit=netProfit
-
+        totalIncome=total_income,
+        totalExpenses=total_expenses,
+        netProfit=net_profit
     )
 
 
-#PROPERTY DETAILS
+
+# PROPERTY DETAILS
 @app.route("/property/<propertyID>")
 def property_details(propertyID):
 
     property = get_property(propertyID)
 
     if property is None:
-
         return redirect(url_for("dashboard"))
 
     transactions = get_transactions(propertyID)
 
+    total_income = get_property_income(propertyID)
+
+    total_expenses = get_property_expenses(propertyID)
+
+    net_profit = total_income - total_expenses
+
+
+    rentalROI = calculate_rental_roi(
+        property["weeklyRent"] or 0,
+        total_expenses,
+        property["purchasePrice"] or 0
+    )
+
+
+    totalROI = calculate_total_roi(
+        property["propertyValue"] or 0,
+        property["purchasePrice"] or 0,
+        property["weeklyRent"] or 0,
+        total_expenses
+    )
+
+
     return render_template(
         "property_details.html",
         property=property,
-        transactions=transactions
+        transactions=transactions,
+        rentalROI=rentalROI,
+        totalROI=totalROI,
+        total_income=total_income,
+        total_expenses=total_expenses,
+        net_profit=net_profit
     )
+
 
 
 # LOGOUT
@@ -465,14 +488,6 @@ def add_transaction(propertyID):
     return render_template(
         "add_transaction.html",
         propertyID=propertyID
-    )
-
-
-
-
-    return render_template(
-    "add_transaction.html",
-    propertyID=propertyID
     )
 
 

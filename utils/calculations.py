@@ -65,22 +65,30 @@ def calculate_net_profit(total_income, total_expenses):
     return net_profit
 
 
+# ROI CALCULATIONS
 
+def calculate_rental_roi(weeklyRent, totalExpenses, purchasePrice):
 
-# CALCULATE ROI (return generated from a property)
+    annualIncome = weeklyRent * 52
 
-def calculate_roi(net_profit, property_value):
-
-
-    # Prevent division by zero
-
-    if property_value == 0:
-
+    if purchasePrice == 0:
         return 0
 
+    roi = ((annualIncome - totalExpenses) / purchasePrice) * 100
+
+    return round(roi, 2)
 
 
-    roi = (net_profit / property_value) * 100
 
+def calculate_total_roi(propertyValue, purchasePrice, weeklyRent, totalExpenses):
 
-    return roi
+    annualIncome = weeklyRent * 52
+
+    if purchasePrice == 0:
+        return 0
+
+    netRentalIncome = annualIncome - totalExpenses
+
+    roi = ((propertyValue - purchasePrice + netRentalIncome) / purchasePrice) * 100
+
+    return round(roi, 2)

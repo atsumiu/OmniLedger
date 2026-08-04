@@ -249,12 +249,13 @@ type="text"
 
 name="propertyAddress"
 
-value="{{ property[2] }}"
+value="{{ property.propertyAddress }}"
 
 required>
 
 
 </div>
+
 
 
 
@@ -279,7 +280,7 @@ Property Type
 
 <option value="House"
 
-{% if property[3] == "House" %}selected{% endif %}>
+{% if property.propertyType == "House" %}selected{% endif %}>
 
 House
 
@@ -288,9 +289,10 @@ House
 
 
 
+
 <option value="Apartment"
 
-{% if property[3] == "Apartment" %}selected{% endif %}>
+{% if property.propertyType == "Apartment" %}selected{% endif %}>
 
 Apartment
 
@@ -300,7 +302,7 @@ Apartment
 
 <option value="Townhouse"
 
-{% if property[3] == "Townhouse" %}selected{% endif %}>
+{% if property.propertyType == "Townhouse" %}selected{% endif %}>
 
 Townhouse
 
@@ -310,7 +312,7 @@ Townhouse
 
 <option value="Office"
 
-{% if property[3] == "Office" %}selected{% endif %}>
+{% if property.propertyType == "Office" %}selected{% endif %}>
 
 Office
 
@@ -320,7 +322,7 @@ Office
 
 <option value="Retail"
 
-{% if property[3] == "Retail" %}selected{% endif %}>
+{% if property.propertyType == "Retail" %}selected{% endif %}>
 
 Retail
 
@@ -332,6 +334,7 @@ Retail
 
 
 </div>
+
 
 
 
@@ -354,7 +357,7 @@ type="text"
 
 name="ownershipData"
 
-value="{{ property[4] }}">
+value="{{ property.ownershipData }}">
 
 
 </div>
@@ -412,7 +415,7 @@ type="text"
 
 name="tenantName"
 
-value="{{ property[5] }}">
+value="{{ property.tenantName }}">
 
 
 </div>
@@ -436,37 +439,42 @@ Lease Status
 <select name="leaseStatus">
 
 
+
 <option value="Active"
 
-{% if property[6] == "Active" %}selected{% endif %}>
+{% if property.leaseStatus == "Active" %}selected{% endif %}>
 
 Active
 
 </option>
 
 
+
 <option value="Vacant"
 
-{% if property[6] == "Vacant" %}selected{% endif %}>
+{% if property.leaseStatus == "Vacant" %}selected{% endif %}>
 
 Vacant
 
 </option>
 
 
+
 <option value="Expired"
 
-{% if property[6] == "Expired" %}selected{% endif %}>
+{% if property.leaseStatus == "Expired" %}selected{% endif %}>
 
 Expired
 
 </option>
 
 
+
 </select>
 
 
 </div>
+
 
 
 
@@ -489,7 +497,7 @@ type="date"
 
 name="leaseStart"
 
-value="{{ property[7] }}">
+value="{{ property.leaseStart }}">
 
 
 </div>
@@ -514,7 +522,7 @@ type="date"
 
 name="leaseEnd"
 
-value="{{ property[8] }}">
+value="{{ property.leaseEnd }}">
 
 
 </div>
@@ -557,6 +565,7 @@ Financial Information
 
 
 
+
 <div>
 
 
@@ -573,7 +582,7 @@ type="number"
 
 name="weeklyRent"
 
-value="{{ property[9] }}">
+value="{{ property.weeklyRent }}">
 
 
 </div>
@@ -600,7 +609,7 @@ type="text"
 
 name="bankAccount"
 
-value="{{ property[10] }}">
+value="{{ property.bankAccount }}">
 
 
 </div>
@@ -627,7 +636,7 @@ type="number"
 
 name="propertyValue"
 
-value="{{ property[11] }}">
+value="{{ property.propertyValue }}">
 
 
 </div>
@@ -654,7 +663,7 @@ type="number"
 
 name="purchasePrice"
 
-value="{{ property[12] }}">
+value="{{ property.purchasePrice }}">
 
 
 </div>
@@ -692,11 +701,7 @@ Additional Notes
 
 <textarea
 
-name="notes">
-
-{{ property[13] }}
-
-</textarea>
+name="notes">{{ property.notes }}</textarea>
 
 
 </div>
@@ -718,13 +723,17 @@ Save Changes
 
 
 
+
 </form>
 
 
 
 
 
+
+
 </main>
+
 
 
 

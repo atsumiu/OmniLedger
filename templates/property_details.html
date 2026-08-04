@@ -43,10 +43,7 @@
 
 
 
-
-
 <!-- SIDEBAR -->
-
 
 <aside class="sidebar">
 
@@ -164,15 +161,10 @@
         </a>
 
 
-
     </nav>
 
 
 </aside>
-
-
-
-
 
 
 
@@ -183,11 +175,6 @@
 
 <main class="main-content">
 
-
-
-
-
-<!-- HEADER -->
 
 
 <header class="top-header">
@@ -206,16 +193,10 @@
     </div>
 
 
-
 </header>
 
 
 
-
-
-
-
-<!-- BACK BUTTON -->
 
 
 <a href="{{ url_for('dashboard') }}">
@@ -238,14 +219,14 @@
 
     <h1>
 
-        {{ property[2] }}
+        {{ property.propertyAddress }}
 
     </h1>
 
 
     <p>
 
-        Property ID: {{ property[0] }}
+        Property ID: {{ property.propertyID }}
 
     </p>
 
@@ -264,7 +245,7 @@
 <div class="property-actions">
 
 
-    <a href="{{ url_for('edit_property', propertyID=property[0]) }}">
+    <a href="{{ url_for('edit_property', propertyID=property.propertyID) }}">
 
         <button class="add-property-button">
 
@@ -276,7 +257,7 @@
 
 
 
-    <a href="{{ url_for('add_transaction', propertyID=property[0]) }}">
+    <a href="{{ url_for('add_transaction', propertyID=property.propertyID) }}">
 
         <button class="add-property-button">
 
@@ -288,8 +269,6 @@
 
 
 </div>
-
-
 
 
 
@@ -316,12 +295,13 @@ Property Type
 
 <h2>
 
-{{ property[3] }}
+{{ property.propertyType }}
 
 </h2>
 
 
 </div>
+
 
 
 
@@ -340,7 +320,7 @@ Weekly Rent
 
 <h2>
 
-${{ property[9] if property[9] else "0" }}
+${{ property.weeklyRent if property.weeklyRent else "0" }}
 
 </h2>
 
@@ -365,7 +345,7 @@ Property Value
 
 <h2>
 
-${{ property[11] if property[11] else "0" }}
+${{ property.propertyValue if property.propertyValue else "0" }}
 
 </h2>
 
@@ -390,7 +370,7 @@ Lease Status
 
 <h2>
 
-{{ property[6] }}
+{{ property.leaseStatus }}
 
 </h2>
 
@@ -401,7 +381,6 @@ Lease Status
 
 
 </section>
-
 
 
 
@@ -429,7 +408,7 @@ Property Information
 
 <strong>Ownership:</strong>
 
-{{ property[4] }}
+{{ property.ownershipData }}
 
 </p>
 
@@ -440,7 +419,7 @@ Property Information
 
 <strong>Tenant:</strong>
 
-{{ property[5] if property[5] else "Vacant" }}
+{{ property.tenantName if property.tenantName else "Vacant" }}
 
 </p>
 
@@ -451,7 +430,7 @@ Property Information
 
 <strong>Lease Start:</strong>
 
-{{ property[7] if property[7] else "N/A" }}
+{{ property.leaseStart if property.leaseStart else "N/A" }}
 
 </p>
 
@@ -462,7 +441,7 @@ Property Information
 
 <strong>Lease End:</strong>
 
-{{ property[8] if property[8] else "N/A" }}
+{{ property.leaseEnd if property.leaseEnd else "N/A" }}
 
 </p>
 
@@ -473,7 +452,19 @@ Property Information
 
 <strong>Bank Account:</strong>
 
-{{ property[10] if property[10] else "N/A" }}
+{{ property.bankAccount if property.bankAccount else "N/A" }}
+
+</p>
+
+
+
+
+
+<p>
+
+<strong>Purchase Price:</strong>
+
+${{ property.purchasePrice if property.purchasePrice else "0" }}
 
 </p>
 
@@ -485,7 +476,7 @@ Property Information
 
 <strong>Notes:</strong>
 
-{{ property[13] if property[13] else "No notes added." }}
+{{ property.notes if property.notes else "No notes added." }}
 
 </p>
 
@@ -521,7 +512,7 @@ Total Income
 
 <h2>
 
-$0.00
+${{ "%.2f"|format(total_income) }}
 
 </h2>
 
@@ -551,7 +542,7 @@ Total Expenses
 
 <h2>
 
-$0.00
+${{ "%.2f"|format(total_expenses) }}
 
 </h2>
 
@@ -581,7 +572,7 @@ Net Profit
 
 <h2>
 
-$0.00
+${{ "%.2f"|format(net_profit) }}
 
 </h2>
 
@@ -604,21 +595,21 @@ Income - Expenses
 
 <h4>
 
-ROI
+Rental ROI
 
 </h4>
 
 
 <h2>
 
-0%
+{{ "%.2f"|format(rentalROI) }}%
 
 </h2>
 
 
 <p>
 
-Return on investment
+Return from rental income
 
 </p>
 
@@ -627,9 +618,36 @@ Return on investment
 
 
 
+
+
+<div class="summary-card">
+
+
+<h4>
+
+Total ROI
+
+</h4>
+
+
+<h2>
+
+{{ "%.2f"|format(totalROI) }}%
+
+</h2>
+
+
+<p>
+
+Rental income + property growth
+
+</p>
+
+
+</div>
+
+
 </section>
-
-
 
 
 
@@ -654,13 +672,16 @@ Transaction History
 
 
 
-<a href="{{ url_for('add_transaction', propertyID=property[0]) }}">
+<a href="{{ url_for('add_transaction', propertyID=property.propertyID) }}">
 
     <button class="add-property-button">
 
         +
+
     </button>
+
 </a>    
+
 
 </div>
 

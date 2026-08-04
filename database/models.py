@@ -346,31 +346,26 @@ def get_properties(userID):
 
 
 # GET PROPERTY
-
 def get_property(propertyID):
 
-    connection = connect_database()
+    conn = connect_database()
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
 
-    cursor = connection.cursor()
-
-    cursor.execute(
-        """
+    cursor.execute("""
         SELECT *
-
         FROM Properties
-
         WHERE propertyID = ?
-        """,
-
-        (propertyID,)
-    )
+    """, (propertyID,))
 
     property = cursor.fetchone()
 
-    connection.close()
+    conn.close()
 
-    return property
+    if property:
+        return dict(property)
 
+    return None
 
 
 
@@ -431,7 +426,6 @@ def create_transaction(
 
 
 # GET TRANSACTIONS
-
 def get_transactions(propertyID):
 
     connection = connect_database()
@@ -458,6 +452,53 @@ def get_transactions(propertyID):
 
     return transactions
 
+
+#PROPERTY TOTALS
+def get_property_expenses(propertyID):
+
+    conn = connect_database()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT SUM(amount)
+        FROM Transactions
+        WHERE propertyID = ?
+        AND transactionType = 'Expense'
+    """, (propertyID,))
+
+    result = cursor.fetchone()
+
+    conn.close()
+
+    if result[0] is None:
+        return 0
+
+    return result[0]
+
+
+# PROPERTY INCOME
+
+def get_property_income(propertyID):
+
+    conn = connect_database()
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT SUM(amount)
+        FROM Transactions
+        WHERE propertyID = ?
+        AND transactionType = 'Income'
+    """, (propertyID,))
+
+    result = cursor.fetchone()
+
+    conn.close()
+
+    if result[0] is None:
+        return 0
+
+    return result[0]
 
 
 # DASHBOARD FINANCE CALCULATIONS
@@ -500,7 +541,27 @@ def get_total_income(userID):
     return result if result else 0
 
 
+# PROPERTY INCOME
+def get_property_income(propertyID):
 
+    conn = connect_database()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT SUM(amount)
+        FROM Transactions
+        WHERE propertyID = ?
+        AND transactionType = 'Income'
+    """, (propertyID,))
+
+    result = cursor.fetchone()
+
+    conn.close()
+
+    if result[0] is None:
+        return 0
+
+    return result[0]
 
 
 # GET TOTAL EXPENSES

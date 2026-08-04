@@ -176,6 +176,8 @@
 
     <main class="main-content">
 
+
+
         <!-- HEADER -->
 
 
@@ -462,72 +464,7 @@
 
                 </h3>
 
-
-
-
-                <p>
-
-                    <strong>Property ID:</strong>
-
-                    {{ property[0] }}
-
-                </p>
-
-
-
-                <p>
-
-                    <strong>Type:</strong>
-
-                    {{ property[3] }}
-
-                </p>
-
-
-
-
-                <p>
-
-                    <strong>Tenant:</strong>
-
-                    {{ property[5] if property[5] else "Vacant" }}
-
-                </p>
-
-
-
-
-                <p>
-
-                    <strong>Lease:</strong>
-
-                    {{ property[6] if property[6] else "No Lease" }}
-
-                </p>
-
-
-
-
-                <p>
-
-                    <strong>Weekly Rent:</strong>
-
-                    ${{ property[9] if property[9] else "0" }}
-
-                </p>
-
-
-
-
-                <p>
-
-                    <strong>Value:</strong>
-
-                    ${{ property[11] if property[11] else "0" }}
-
-                </p>
-
-
+                <!--PROPERTY CARDS WERE HERE CODE--> 
 
                 <a href="{{ url_for('property_details', propertyID=property[0]) }}">
 
