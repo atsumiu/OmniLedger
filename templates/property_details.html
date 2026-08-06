@@ -26,6 +26,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 
+    <!-- Chart.js -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
     <!-- CSS -->
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/property_details.css') }}">
@@ -73,6 +79,7 @@
 
 
     </div>
+
 
 
 
@@ -170,6 +177,8 @@
 
 
 
+
+
 <!-- MAIN CONTENT -->
 
 
@@ -211,6 +220,7 @@
 
 
 
+
 <!-- PROPERTY TITLE -->
 
 
@@ -232,6 +242,7 @@
 
 
 </section>
+
 
 
 
@@ -269,6 +280,7 @@
 
 
 </div>
+
 
 
 
@@ -485,19 +497,10 @@ ${{ property.purchasePrice if property.purchasePrice else "0" }}
 
 </section>
 
+<!-- FINANCIAL SUMMARY -->
 
 
-
-
-
-
-
-
-<!-- FINANCIAL SECTION -->
-
-
-<section class="summary-row">
-
+<section class="summary-row"> 
 
 
 <div class="summary-card">
@@ -655,6 +658,69 @@ Rental income + property growth
 
 
 
+
+
+<!-- FINANCIAL CHARTS -->
+
+
+<section class="graph-layout">
+
+
+
+    <div class="graph-card">
+
+
+        <h3>
+
+            Income vs Expenses
+
+        </h3>
+
+
+        <div class="chart-container">
+
+            <canvas id="incomeExpenseChart"></canvas>
+
+        </div>
+
+
+    </div>
+
+
+
+
+
+    <div class="graph-card">
+
+
+        <h3>
+
+            Expense Breakdown
+
+        </h3>
+
+
+        <div class="chart-container">
+
+            <canvas id="expenseChart"></canvas>
+
+        </div>
+
+
+    </div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
 <!-- TRANSACTIONS -->
 
 
@@ -698,7 +764,7 @@ Transaction History
 
 <strong>
 
-{{ transaction[4] }}
+{{ transaction[5] }}
 
 </strong>
 
@@ -710,7 +776,7 @@ Transaction History
 
 -
 
-${{ transaction[3] }}
+${{ "%.2f"|format(transaction[4]) }}
 
 
 
@@ -744,11 +810,148 @@ No transactions recorded yet.
 
 
 
+
+
+
 </main>
 
 
 
 </div>
+
+
+
+
+
+
+
+
+
+<div id="property-chart-data"
+     data-total-income='{{ total_income|tojson }}'
+     data-total-expenses='{{ total_expenses|tojson }}'
+     data-expense-labels='{{ expense_labels|tojson }}'
+     data-expense-amounts='{{ expense_amounts|tojson }}'
+     data-has-expense-data='{{ has_expense_data|tojson }}'
+     style="display:none;"></div>
+
+<script>
+
+const chartDataNode = document.getElementById('property-chart-data');
+const totalIncome = JSON.parse(chartDataNode.dataset.totalIncome);
+const totalExpenses = JSON.parse(chartDataNode.dataset.totalExpenses);
+const expenseLabels = JSON.parse(chartDataNode.dataset.expenseLabels);
+const expenseAmounts = JSON.parse(chartDataNode.dataset.expenseAmounts);
+const hasExpenseData = JSON.parse(chartDataNode.dataset.hasExpenseData);
+
+const incomeExpenseChart = new Chart(
+
+    document.getElementById('incomeExpenseChart'),
+
+    {
+
+        type: 'bar',
+
+        data: {
+
+            labels: [
+
+                "Income",
+
+                "Expenses"
+
+            ],
+
+            datasets: [
+
+                {
+
+                    label: "Amount ($)",
+
+                    data: [
+
+                        totalIncome,
+
+                        totalExpenses
+
+                    ]
+
+                }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive:true,
+
+            maintainAspectRatio:false
+
+        }
+
+    }
+
+);
+
+
+
+
+
+
+
+const expenseChartConfig = {
+
+    type:'doughnut',
+
+    data:{
+
+        labels: expenseLabels,
+
+        datasets:[
+
+            {
+
+                data: expenseAmounts
+
+            }
+
+        ]
+
+    },
+
+    options:{
+
+        responsive:true,
+
+        maintainAspectRatio:false
+
+    }
+
+};
+
+if (hasExpenseData) {
+
+    new Chart(
+
+        document.getElementById('expenseChart'),
+
+        expenseChartConfig
+
+    );
+
+} else {
+
+    document.getElementById('expenseChart').parentElement.innerHTML = '<p style="text-align:center; color:#555; padding: 2rem;">No expense transactions to show.</p>';
+
+}
+
+
+
+</script>
+
+
+
 
 
 

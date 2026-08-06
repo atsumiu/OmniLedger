@@ -452,7 +452,35 @@ body{
 }
 
 
+.graph-layout{
 
+    display:grid;
+
+    grid-template-columns:2fr 1fr;
+
+    gap:20px;
+
+    margin-bottom:30px;
+
+}
+
+
+
+.chart-container{
+
+    height:300px;
+
+    width:100%;
+
+}
+
+
+
+.graph-card canvas{
+
+    max-height:300px;
+
+}
 
 
 

@@ -453,6 +453,7 @@ def get_transactions(propertyID):
     return transactions
 
 
+
 #PROPERTY TOTALS
 def get_property_expenses(propertyID):
 
@@ -720,3 +721,41 @@ def get_reports(userID):
     return reports
 
 
+
+# GET TRANSACTIONS FOR REPORTS
+
+def get_report_transactions(propertyID, startDate, endDate):
+
+    connection = connect_database()
+
+    cursor = connection.cursor()
+
+
+    cursor.execute("""
+    
+    SELECT *
+
+    FROM Transactions
+
+    WHERE propertyID = ?
+
+    AND date BETWEEN ? AND ?
+
+    ORDER BY date ASC
+
+    """,
+
+    (
+        propertyID,
+        startDate,
+        endDate
+    ))
+
+
+    transactions = cursor.fetchall()
+
+
+    connection.close()
+
+
+    return transactions

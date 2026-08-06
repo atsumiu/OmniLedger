@@ -425,7 +425,7 @@ body{
 
     display:grid;
 
-    grid-template-columns:2fr 1fr;
+    grid-template-columns:1fr 1fr;
 
     gap:25px;
 
@@ -461,6 +461,14 @@ body{
 
 
 
+.chart-container{
+
+    height:280px;
+
+    width:100%;
+
+}
+
 .graph-placeholder{
 
     height:250px;
@@ -478,8 +486,6 @@ body{
     color:#737373;
 
 }
-
-
 
 
 
@@ -622,5 +628,48 @@ body{
     font-family:'Poppins', sans-serif;
 
     cursor:pointer;
+
+}
+
+@media(max-width:1100px){
+
+    .summary-row{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+
+    .analytics-row{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    .property-section{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}
+
+
+
+@media(max-width:700px){
+
+    .summary-row{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    .property-section{
+
+        grid-template-columns:1fr;
+
+    }
 
 }

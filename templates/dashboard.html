@@ -24,6 +24,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 
+
+    <!-- Chart.js -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
     <!-- Dashboard CSS -->
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
@@ -40,10 +47,12 @@
 <div class="dashboard-container">
 
 
+
     <!-- SIDEBAR -->
 
 
     <aside class="sidebar">
+
 
 
         <div class="user-profile">
@@ -100,6 +109,7 @@
             </a>
 
 
+
             <a href="#">
 
                 Statistics
@@ -107,11 +117,13 @@
             </a>
 
 
-            <a href="#">
+
+            <a href="{{ url_for('reports') }}">
 
                 Reports
 
             </a>
+
 
 
             <a href="{{ url_for('add_property') }}">
@@ -119,6 +131,7 @@
                 Properties
 
             </a>
+
 
 
             <a href="#">
@@ -144,11 +157,13 @@
             </a>
 
 
+
             <a href="{{ url_for('logout') }}">
 
                 Log Out
 
             </a>
+
 
 
             <a href="#">
@@ -174,7 +189,10 @@
 
     <!-- MAIN CONTENT -->
 
+
     <main class="main-content">
+
+
 
 
 
@@ -195,6 +213,7 @@
 
 
             </div>
+
 
 
 
@@ -258,6 +277,8 @@
 
 
 
+
+
             <div class="summary-card">
 
 
@@ -288,6 +309,8 @@
 
 
 
+
+
             <div class="summary-card">
 
 
@@ -313,6 +336,8 @@
 
 
             </div>
+
+
 
 
 
@@ -356,7 +381,7 @@
 
 
 
-        <!-- GRAPH PLACEHOLDERS -->
+        <!-- GRAPHS -->
 
 
         <section class="analytics-row">
@@ -374,18 +399,14 @@
 
 
 
-                <div class="graph-placeholder">
+                <div class="chart-container">
 
-
-                    Graph Coming Soon
-
+                    <canvas id="financialChart"></canvas>
 
                 </div>
 
 
-
             </div>
-
 
 
 
@@ -397,39 +418,26 @@
 
                 <h3>
 
-                    Property Statistics
+                    Income vs Expenses
 
                 </h3>
 
 
 
+                <div class="chart-container">
 
-                <div class="graph-placeholder">
-
-
-                    Graph Coming Soon
-
+                    <canvas id="expenseChart"></canvas>
 
                 </div>
-
 
 
             </div>
 
 
 
-
         </section>
 
-
-
-
-
-
-
-
-
-        <!-- PROPERTY CARDS -->
+                <!-- PROPERTY CARDS -->
 
 
         <section class="property-section">
@@ -464,7 +472,7 @@
 
                 </h3>
 
-                <!--PROPERTY CARDS WERE HERE CODE--> 
+
 
                 <a href="{{ url_for('property_details', propertyID=property[0]) }}">
 
@@ -482,7 +490,6 @@
 
 
             {% endfor %}
-
 
 
 
@@ -554,8 +561,6 @@
 
 
 
-
-
     </main>
 
 
@@ -563,6 +568,226 @@
 
 
 </div>
+
+
+
+
+
+
+
+<!-- CHART DATA -->
+
+
+<div id="dashboard-chart-data"
+
+    data-income="{{ totalIncome }}"
+
+    data-expenses="{{ totalExpenses }}"
+
+    data-profit="{{ netProfit }}"
+
+    style="display:none;">
+
+</div>
+
+
+
+
+
+
+
+<script>
+
+
+const dashboardData = document.getElementById(
+    "dashboard-chart-data"
+);
+
+
+
+const income = Number(
+    dashboardData.dataset.income
+);
+
+
+
+const expenses = Number(
+    dashboardData.dataset.expenses
+);
+
+
+
+const profit = Number(
+    dashboardData.dataset.profit
+);
+
+
+
+
+
+
+
+// FINANCIAL OVERVIEW BAR CHART
+
+
+new Chart(
+
+    document.getElementById("financialChart"),
+
+    {
+
+        type:"bar",
+
+
+        data:{
+
+
+            labels:[
+
+                "Income",
+
+                "Expenses",
+
+                "Net Profit"
+
+            ],
+
+
+
+            datasets:[
+
+
+                {
+
+
+                    label:"Amount ($)",
+
+
+                    data:[
+
+                        income,
+
+                        expenses,
+
+                        profit
+
+                    ]
+
+
+                }
+
+
+            ]
+
+
+        },
+
+
+
+        options:{
+
+
+            responsive:true,
+
+
+            maintainAspectRatio:false
+
+
+
+        }
+
+
+
+    }
+
+);
+
+
+
+
+
+
+
+
+
+// EXPENSE VS INCOME DOUGHNUT
+
+
+new Chart(
+
+    document.getElementById("expenseChart"),
+
+
+    {
+
+
+        type:"doughnut",
+
+
+
+        data:{
+
+
+            labels:[
+
+                "Income",
+
+                "Expenses"
+
+            ],
+
+
+
+            datasets:[
+
+
+                {
+
+
+                    data:[
+
+                        income,
+
+                        expenses
+
+                    ]
+
+
+                }
+
+
+            ]
+
+
+        },
+
+
+
+        options:{
+
+
+            responsive:true,
+
+
+            maintainAspectRatio:false
+
+
+
+        }
+
+
+
+    }
+
+
+);
+
+
+
+
+</script>
+
+
 
 
 

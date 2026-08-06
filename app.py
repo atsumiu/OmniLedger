@@ -1,9 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+
 from datetime import datetime
+
+import os
+
+from werkzeug.utils import secure_filename
+
 from utils.calculations import (
     calculate_rental_roi,
     calculate_total_roi
 )
+
 from database.models import (
     create_user,
     check_user,
@@ -13,8 +20,13 @@ from database.models import (
     get_transactions,
     update_property,
     get_property_expenses,
-    get_property_income
+    get_property_income,
+    get_properties,
+    get_report_transactions,
+    create_report,
+    get_reports
 )
+
 
 # CREATING FLASK
 app = Flask(__name__)
@@ -63,7 +75,6 @@ def login():
 
 
 # DASHBOARD
-# DASHBOARD
 @app.route("/dashboard")
 def dashboard():
 
@@ -84,13 +95,139 @@ def dashboard():
 
     net_profit = get_net_profit(userID)
 
-
     return render_template(
         "dashboard.html",
         properties=properties,
         totalIncome=total_income,
         totalExpenses=total_expenses,
         netProfit=net_profit
+    )
+
+
+
+# REPORTS PAGE
+
+@app.route("/reports")
+def reports():
+
+    from database.models import get_properties
+
+    userID = session["userID"]
+
+    properties = get_properties(userID)
+
+
+    return render_template(
+        "reports.html",
+        properties=properties
+    )
+
+
+
+# GENERATE REPORT
+@app.route("/generate_report", methods=["POST"])
+def generate_report():
+
+    userID = session["userID"]
+
+
+    propertyID = request.form["property"]
+
+    reportType = request.form["reportType"]
+
+    startDate = request.form["startDate"]
+
+    endDate = request.form["endDate"]
+
+
+
+    transactions = get_report_transactions(
+        propertyID,
+        startDate,
+        endDate
+    )
+
+
+
+    totalIncome = 0
+
+    totalExpense = 0
+
+    receipt = request.files.get("receipt")
+
+    filename = None
+
+    if receipt and receipt.filename:
+
+        filename = secure_filename(receipt.filename)
+
+        filepath = os.path.join(
+            "static",
+            "uploads",
+            "receipts",
+            filename
+        )
+
+        receipt.save(filepath)
+
+    for transaction in transactions:
+
+
+        if transaction[2] == "Income":
+
+            totalIncome += transaction[4]
+
+
+        elif transaction[2] == "Expense":
+
+            totalExpense += transaction[4]
+
+
+
+    netProfit = totalIncome - totalExpense
+
+
+
+    create_report(
+
+        userID,
+
+        reportType,
+
+        startDate,
+
+        endDate,
+
+        totalIncome,
+
+        totalExpense,
+
+        0,
+
+        netProfit,
+
+        0,
+
+        "Generated automatically"
+
+    )
+
+
+
+    return render_template(
+
+        "reports.html",
+
+        properties=get_properties(userID),
+
+        report_generated=True,
+
+        totalIncome=totalIncome,
+
+        totalExpense=totalExpense,
+
+        netProfit=netProfit
+
     )
 
 
@@ -112,13 +249,11 @@ def property_details(propertyID):
 
     net_profit = total_income - total_expenses
 
-
     rentalROI = calculate_rental_roi(
         property["weeklyRent"] or 0,
         total_expenses,
         property["purchasePrice"] or 0
     )
-
 
     totalROI = calculate_total_roi(
         property["propertyValue"] or 0,
@@ -127,6 +262,19 @@ def property_details(propertyID):
         total_expenses
     )
 
+    expense_labels = [
+        transaction[3]
+        for transaction in transactions
+        if transaction[2] == "Expense"
+    ]
+
+    expense_amounts = [
+        transaction[4]
+        for transaction in transactions
+        if transaction[2] == "Expense"
+    ]
+
+    has_expense_data = bool(expense_labels)
 
     return render_template(
         "property_details.html",
@@ -136,7 +284,10 @@ def property_details(propertyID):
         totalROI=totalROI,
         total_income=total_income,
         total_expenses=total_expenses,
-        net_profit=net_profit
+        net_profit=net_profit,
+        expense_labels=expense_labels,
+        expense_amounts=expense_amounts,
+        has_expense_data=has_expense_data
     )
 
 

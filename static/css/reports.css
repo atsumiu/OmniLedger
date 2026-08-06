@@ -1,0 +1,767 @@
+/* Purpose: Style for Reports Page */
+
+
+/* ================================
+   GENERAL
+================================ */
+
+
+*{
+
+    margin:0;
+
+    padding:0;
+
+    box-sizing:border-box;
+
+}
+
+
+
+body{
+
+    font-family:'Poppins', sans-serif;
+
+    background:#f2eadd;
+
+    color:#3e5a4c;
+
+}
+
+
+
+
+/* ================================
+   PAGE LAYOUT
+================================ */
+
+
+.dashboard-container{
+
+    display:flex;
+
+    width:100%;
+
+    min-height:100vh;
+
+}
+
+
+
+/* ================================
+   SIDEBAR
+================================ */
+
+
+.sidebar{
+
+    width:260px;
+
+    background:#557b6e;
+
+    padding:35px 25px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    border-top-right-radius:18px;
+
+    border-bottom-right-radius:18px;
+
+}
+
+
+
+/* USER PROFILE */
+
+
+.user-profile{
+
+    text-align:left;
+
+}
+
+
+
+.profile-image{
+
+    width:60px;
+
+    height:60px;
+
+    border-radius:50%;
+
+    background:white;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:28px;
+
+    margin-bottom:15px;
+
+}
+
+
+
+.hello-text{
+
+    font-size:13px;
+
+    color:#e8e1d4;
+
+}
+
+
+
+.user-profile h3{
+
+    color:white;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    margin-top:4px;
+
+}
+
+
+
+/* SEARCH */
+
+
+.search-sidebar{
+
+    margin-top:30px;
+
+    margin-bottom:25px;
+
+}
+
+
+
+.search-sidebar input{
+
+    width:100%;
+
+    padding:12px 18px;
+
+    border:none;
+
+    outline:none;
+
+    border-radius:30px;
+
+    background:#3e5a4c;
+
+    color:white;
+
+    font-size:14px;
+
+}
+
+
+
+.search-sidebar input::placeholder{
+
+    color:white;
+
+}
+
+
+
+/* MENU */
+
+
+.sidebar-menu{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+
+
+.sidebar-menu a{
+
+    text-decoration:none;
+
+    color:#f2eadd;
+
+    font-size:15px;
+
+    padding:12px 16px;
+
+    border-radius:25px;
+
+    transition:0.25s;
+
+}
+
+
+
+.sidebar-menu a:hover{
+
+    background:#8ea08b;
+
+    color:white;
+
+}
+
+
+
+.sidebar-menu .active{
+
+    background:#f2eadd;
+
+    color:#557b6e;
+
+    font-weight:600;
+
+}
+
+
+
+.sidebar hr{
+
+    border:none;
+
+    border-top:1px solid rgba(255,255,255,0.3);
+
+    margin:18px 0;
+
+}
+
+
+
+
+
+/* ================================
+   MAIN CONTENT
+================================ */
+
+
+.main-content{
+
+    flex:1;
+
+    padding:30px 40px;
+
+}
+
+
+
+
+/* HEADER */
+
+
+.top-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:35px;
+
+}
+
+
+
+.logo-section h2{
+
+    color:#3e5a4c;
+
+    font-size:34px;
+
+    font-weight:600;
+
+}
+
+
+
+
+
+/* ================================
+   REPORT LAYOUT
+================================ */
+
+
+.report-layout{
+
+    display:grid;
+
+    grid-template-columns:0.9fr 1.4fr;
+
+    gap:30px;
+
+    align-items:start;
+
+}
+
+
+
+
+/* ================================
+   REPORT CREATION CARD
+================================ */
+
+
+.report-card{
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:20px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+}
+
+
+
+.report-card h3{
+
+    font-size:22px;
+
+    margin-bottom:25px;
+
+}
+
+
+
+.report-card label{
+
+    display:block;
+
+    color:#737373;
+
+    font-size:14px;
+
+    margin-top:18px;
+
+    margin-bottom:7px;
+
+}
+
+
+
+.report-card select,
+.report-card input,
+.report-card textarea{
+
+    width:100%;
+
+    padding:12px 15px;
+
+    border:1px solid #737373;
+
+    border-radius:10px;
+
+    background:#fdfbf7;
+
+    font-family:'Poppins', sans-serif;
+
+    color:#3e5a4c;
+
+}
+
+
+
+.report-card textarea{
+
+    height:90px;
+
+    resize:none;
+
+}
+
+
+
+
+
+/* UPLOAD BOX */
+
+
+.upload-box{
+
+    margin-top:10px;
+
+    padding:25px;
+
+    border:2px dashed #557b6e;
+
+    border-radius:15px;
+
+    text-align:center;
+
+    background:#faf8f3;
+
+}
+
+
+
+.upload-box p{
+
+    color:#737373;
+
+    margin:8px;
+
+}
+
+
+
+.upload-box button{
+
+    background:white;
+
+    border:1px solid #557b6e;
+
+    padding:10px 20px;
+
+    border-radius:10px;
+
+    font-family:'Poppins';
+
+    color:#3e5a4c;
+
+}
+
+
+
+
+
+/* GENERATE BUTTON */
+
+
+.generate-button{
+
+    width:100%;
+
+    margin-top:25px;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:25px;
+
+    background:#557b6e;
+
+    color:white;
+
+    font-family:'Poppins';
+
+    font-size:15px;
+
+    cursor:pointer;
+
+}
+
+
+
+.generate-button:hover{
+
+    opacity:0.9;
+
+}
+
+
+
+
+
+/* ================================
+   REPORT PREVIEW
+================================ */
+
+
+.report-preview-card{
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:20px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+}
+
+
+
+.report-preview-card h3{
+
+    font-size:22px;
+
+    margin-bottom:20px;
+
+}
+
+
+
+
+.preview-paper{
+
+    background:white;
+
+    border:1px solid #ddd;
+
+    padding:45px;
+
+    min-height:600px;
+
+    border-radius:8px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+}
+
+
+
+.preview-paper h2{
+
+    text-align:center;
+
+    font-size:30px;
+
+}
+
+
+
+.preview-paper h4{
+
+    text-align:center;
+
+    color:#737373;
+
+}
+
+
+
+.preview-paper hr{
+
+    margin:25px 0;
+
+}
+
+
+
+.preview-paper p{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin:12px 0;
+
+    font-size:14px;
+
+}
+
+
+
+.preview-paper h3{
+
+    margin-top:25px;
+
+    font-size:18px;
+
+}
+
+
+
+.profit{
+
+    color:#557b6e;
+
+    font-size:26px !important;
+
+    font-weight:600;
+
+}
+
+
+
+.generated{
+
+    justify-content:center !important;
+
+    color:#737373;
+
+    font-size:13px !important;
+
+}
+
+
+
+
+
+/* DOWNLOAD */
+
+
+.download-button{
+
+    width:100%;
+
+    margin-top:20px;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:25px;
+
+    background:#3e5a4c;
+
+    color:white;
+
+    font-family:'Poppins';
+
+}
+
+
+
+
+
+/* ================================
+   RECENT REPORTS
+================================ */
+
+
+.recent-reports{
+
+    margin-top:35px;
+
+}
+
+
+
+.recent-reports h3{
+
+    font-size:22px;
+
+    margin-bottom:20px;
+
+}
+
+
+
+.report-history-card{
+
+    background:white;
+
+    padding:20px 25px;
+
+    border-radius:15px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:15px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+}
+
+
+.upload-box p{
+
+    color:#3e5a4c;
+
+    margin-bottom:12px;
+
+}
+
+
+.file-upload::file-selector-button{
+
+    background:#557b6e;
+
+    color:white;
+
+    border:none;
+
+    padding:10px 18px;
+
+    border-radius:25px;
+
+    font-family:'Poppins', sans-serif;
+
+    font-size:14px;
+
+    cursor:pointer;
+
+    margin-right:12px;
+
+}
+
+
+.file-upload::file-selector-button:hover{
+
+    background:#3e5a4c;
+
+}
+
+.report-history-card button{
+
+    background:#557b6e;
+
+    color:white;
+
+    border:none;
+
+    padding:10px 25px;
+
+    border-radius:25px;
+
+    font-family:'Poppins';
+
+}
+
+
+
+@media(max-width:1100px){
+
+
+    .report-layout{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+}
+
+
+
+@media(max-width:700px){
+
+
+    .sidebar{
+
+        width:200px;
+
+    }
+
+
+    .main-content{
+
+        padding:20px;
+
+    }
+
+
+}
