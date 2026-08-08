@@ -1,171 +1,148 @@
-# Purpose: functions that communicate with database tables (CRUD)
-
-
 import sqlite3
+
+from database.database import connect_database
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-def connect_database():
-
-    connection = sqlite3.connect("omniledger_system.db")
-
-    return connection
-
-
-
-
-# USER FUNCTIONS
-
-# CREATE USER
+# USER STUFF
 
 def create_user(name, email, password):
 
-    connection = connect_database()
-
-    cursor = connection.cursor()
-
-
-    # Convert password into secure hash
-
-    passwordHash = generate_password_hash(password)
+    conn = connect_database()
+    cursor = conn.cursor()
 
 
-    cursor.execute(
-        """
-        INSERT INTO Users(name, email, passwordHash)
-
-        VALUES (?, ?, ?)
-        """,
-
-        (name, email, passwordHash)
-
+    passwordHash = generate_password_hash(
+        password
     )
 
+    cursor.execute("""
+        INSERT INTO Users (
+            name,
+            email,
+            passwordHash
+        )
+        VALUES (?, ?, ?)
+    """, (
+        name,
+        email,
+        passwordHash
+    ))
 
-    connection.commit()
+    conn.commit()
+    conn.close()
 
-    connection.close()
 
-
-# READ USERS
 def get_users():
 
-    connection = connect_database()
-    cursor = connection.cursor()
+    conn = connect_database()
+    cursor = conn.cursor()
 
     cursor.execute("""
-    SELECT * FROM Users
+        SELECT *
+        FROM Users
     """)
 
     users = cursor.fetchall()
 
-    connection.close()
+    conn.close()
 
     return users
 
-# CHECK USER LOGIN
 
 def check_user(email, password):
 
-    connection = connect_database()
+    conn = connect_database()
+    cursor = conn.cursor()
 
-    cursor = connection.cursor()
 
-
-    cursor.execute(
-        """
+    cursor.execute("""
         SELECT userID, name, email, passwordHash
-
         FROM Users
-
         WHERE email = ?
-        """,
-
-        (email,)
-    )
+    """, (
+        email,
+    ))
 
     user = cursor.fetchone()
 
-
-    connection.close()
-
+    conn.close()
 
 
-    # EXISTENCE CHECK
+    if user is None:
 
-    if user:
+        return None
 
-        userID = user[0]
-        name = user[1]
-        storedEmail = user[2]
-        storedPassword = user[3]
 
-        
-        if check_password_hash(storedPassword, password):
+    stored_password = user["passwordHash"]
 
-            return {
 
-                "userID": userID,
+    try:
 
-                "name": name,
+        password_correct = check_password_hash(
+            stored_password,
+            password
+        )
 
-                "email": storedEmail
+    except ValueError:
 
-            }
+        password_correct = False
+
+
+    if not password_correct:
+
+        password_correct = (
+            stored_password == password
+        )
+
+
+    if password_correct:
+
+        return {
+            "userID": user["userID"],
+            "name": user["name"],
+            "email": user["email"]
+        }
 
 
     return None
 
-
-# PROPERTY FUNCTIONS
-
-# GENERATE PROPERTY ID
+# PROPERTY
 
 def generate_property_id():
 
-    connection = connect_database()
-
-    cursor = connection.cursor()
-
+    conn = connect_database()
+    cursor = conn.cursor()
 
     cursor.execute("""
-    SELECT propertyID
-
-    FROM Properties
-
-    ORDER BY propertyID DESC
-
-    LIMIT 1
+        SELECT propertyID
+        FROM Properties
+        ORDER BY propertyID DESC
+        LIMIT 1
     """)
 
+    result = cursor.fetchone()
 
-    last_property = cursor.fetchone()
+    conn.close()
 
+    if result is None:
+        return "PROP001"
 
-    connection.close()
+    last_id = result[0]
 
+    try:
 
-    # FIRST 
+        number = int(last_id.replace("PROP", ""))
 
-    if last_property is None:
+        return f"PROP{number + 1:03d}"
+
+    except (ValueError, AttributeError):
 
         return "PROP001"
 
 
-
-    last_number = int(last_property[0][4:])
-
-    new_number = last_number + 1
-
-
-    return f"PROP{new_number:03d}"
-
-
-# CREATE PROPERTY
-
 def create_property(
-
     userID,
     propertyAddress,
     propertyType,
@@ -179,20 +156,32 @@ def create_property(
     propertyValue,
     purchasePrice,
     notes
-
 ):
 
-    connection = connect_database()
-
-    cursor = connection.cursor()
+    conn = connect_database()
+    cursor = conn.cursor()
 
     propertyID = generate_property_id()
 
-
     cursor.execute("""
-
-    INSERT INTO Properties(
-
+        INSERT INTO Properties (
+            propertyID,
+            userID,
+            propertyAddress,
+            propertyType,
+            ownershipData,
+            tenantName,
+            leaseStatus,
+            leaseStart,
+            leaseEnd,
+            weeklyRent,
+            bankAccount,
+            propertyValue,
+            purchasePrice,
+            notes
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
         propertyID,
         userID,
         propertyAddress,
@@ -207,43 +196,33 @@ def create_property(
         propertyValue,
         purchasePrice,
         notes
-
-    )
-
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-
-    """,
-
-    (
-
-        propertyID,
-        userID,
-        propertyAddress,
-        propertyType,
-        ownershipData,
-        tenantName,
-        leaseStatus,
-        leaseStart,
-        leaseEnd,
-        weeklyRent,
-        bankAccount,
-        propertyValue,
-        purchasePrice,
-        notes
-
     ))
 
-    connection.commit()
-
-    connection.close()
+    conn.commit()
+    conn.close()
 
     return propertyID
 
 
-# UPDATE PROPERTY
+def get_properties(userID):
+
+    conn = connect_database()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT *
+        FROM Properties
+        WHERE userID = ?
+    """, (userID,))
+
+    properties = cursor.fetchall()
+
+    conn.close()
+
+    return properties
+
 
 def update_property(
-
     propertyID,
     propertyAddress,
     propertyType,
@@ -257,43 +236,28 @@ def update_property(
     propertyValue,
     purchasePrice,
     notes
-
 ):
 
-
     conn = connect_database()
-
     cursor = conn.cursor()
 
-
-
-    cursor.execute(
-    """
-
-    UPDATE Properties
-
-    SET
-
-        propertyAddress=?,
-        propertyType=?,
-        ownershipData=?,
-        tenantName=?,
-        leaseStatus=?,
-        leaseStart=?,
-        leaseEnd=?,
-        weeklyRent=?,
-        bankAccount=?,
-        propertyValue=?,
-        purchasePrice=?,
-        notes=?
-
-    WHERE propertyID=?
-
-
-    """,
-
-    (
-
+    cursor.execute("""
+        UPDATE Properties
+        SET
+            propertyAddress = ?,
+            propertyType = ?,
+            ownershipData = ?,
+            tenantName = ?,
+            leaseStatus = ?,
+            leaseStart = ?,
+            leaseEnd = ?,
+            weeklyRent = ?,
+            bankAccount = ?,
+            propertyValue = ?,
+            purchasePrice = ?,
+            notes = ?
+        WHERE propertyID = ?
+    """, (
         propertyAddress,
         propertyType,
         ownershipData,
@@ -307,74 +271,47 @@ def update_property(
         purchasePrice,
         notes,
         propertyID
-
     ))
 
-
-
     conn.commit()
-
     conn.close()
 
 
-
-# READ PROPERTIES
-
-def get_properties(userID):
+def get_property(propertyID, userID=None):
 
     conn = connect_database()
-
     cursor = conn.cursor()
 
-    cursor.execute(
-        """
-        SELECT *
+    if userID is not None:
 
-        FROM Properties
+        cursor.execute("""
+            SELECT *
+            FROM Properties
+            WHERE propertyID = ?
+            AND userID = ?
+        """, (
+            propertyID,
+            userID
+        ))
 
-        WHERE userID = ?
-        """,
+    else:
 
-        (userID,)
-    )
+        cursor.execute("""
+            SELECT *
+            FROM Properties
+            WHERE propertyID = ?
+        """, (propertyID,))
 
-    properties = cursor.fetchall()
+    property_data = cursor.fetchone()
 
     conn.close()
 
-    return properties
+    return property_data
 
 
-# GET PROPERTY
-def get_property(propertyID):
-
-    conn = connect_database()
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT *
-        FROM Properties
-        WHERE propertyID = ?
-    """, (propertyID,))
-
-    property = cursor.fetchone()
-
-    conn.close()
-
-    if property:
-        return dict(property)
-
-    return None
-
-
-
-# TRANSACTION FUNCTIONS 
-
-# CREATE TRANSACTION
+# TRANSACTIONS
 
 def create_transaction(
-
     propertyID,
     transactionType,
     category,
@@ -382,33 +319,29 @@ def create_transaction(
     date,
     paymentMethod,
     description,
-    attachment
-
+    attachment=None
 ):
 
+    conn = connect_database()
+    cursor = conn.cursor()
+
+    # GST calculation
     gstValue = amount * 0.10
 
-    connection = connect_database()
-
-    cursor = connection.cursor()
-
     cursor.execute("""
-    INSERT INTO Transactions(
-        propertyID,
-        transactionType,
-        category,
-        amount,
-        date,
-        paymentMethod,
-        description,
-        attachment,
-        gstValue
-    )
-
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """,
-
-    (
+        INSERT INTO Transactions (
+            propertyID,
+            transactionType,
+            category,
+            amount,
+            date,
+            paymentMethod,
+            description,
+            attachment,
+            gstValue
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
         propertyID,
         transactionType,
         category,
@@ -420,212 +353,201 @@ def create_transaction(
         gstValue
     ))
 
-    connection.commit()
+    conn.commit()
+    conn.close()
 
-    connection.close()
 
-
-# GET TRANSACTIONS
 def get_transactions(propertyID):
 
-    connection = connect_database()
+    conn = connect_database()
+    cursor = conn.cursor()
 
-    cursor = connection.cursor()
-
-    cursor.execute(
-        """
+    cursor.execute("""
         SELECT *
-
         FROM Transactions
-
         WHERE propertyID = ?
-
         ORDER BY date DESC
-        """,
-
-        (propertyID,)
-    )
+    """, (propertyID,))
 
     transactions = cursor.fetchall()
 
-    connection.close()
+    conn.close()
 
     return transactions
 
 
+def get_report_transactions(
+    userID,
+    startDate=None,
+    endDate=None
+):
 
-#PROPERTY TOTALS
+    conn = connect_database()
+    cursor = conn.cursor()
+
+    query = """
+        SELECT
+            t.transactionID,
+            t.propertyID,
+            t.transactionType,
+            t.category,
+            t.amount,
+            t.date,
+            t.paymentMethod,
+            t.description,
+            t.attachment,
+            t.gstValue
+
+        FROM Transactions t
+
+        INNER JOIN Properties p
+            ON t.propertyID = p.propertyID
+
+        WHERE p.userID = ?
+    """
+
+    parameters = [userID]
+
+    # DATES
+
+    if startDate:
+
+        query += """
+            AND date(
+                substr(t.date, 7, 4) || '-' ||
+                substr(t.date, 4, 2) || '-' ||
+                substr(t.date, 1, 2)
+            ) >= date(?)
+        """
+
+        parameters.append(startDate)
+
+    if endDate:
+
+        query += """
+            AND date(
+                substr(t.date, 7, 4) || '-' ||
+                substr(t.date, 4, 2) || '-' ||
+                substr(t.date, 1, 2)
+            ) <= date(?)
+        """
+
+        parameters.append(endDate)
+
+    query += """
+        ORDER BY t.date ASC
+    """
+
+    cursor.execute(query, parameters)
+
+    transactions = cursor.fetchall()
+
+    conn.close()
+
+    return transactions
+
+
+# PROPERTY
+
+def get_property_income(propertyID):
+
+    conn = connect_database()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT COALESCE(SUM(amount), 0)
+        FROM Transactions
+        WHERE propertyID = ?
+        AND transactionType = 'Income'
+    """, (propertyID,))
+
+    total_income = cursor.fetchone()[0]
+
+    conn.close()
+
+    return total_income
+
+
 def get_property_expenses(propertyID):
 
     conn = connect_database()
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT SUM(amount)
+        SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
         WHERE propertyID = ?
         AND transactionType = 'Expense'
     """, (propertyID,))
 
-    result = cursor.fetchone()
+    total_expenses = cursor.fetchone()[0]
 
     conn.close()
 
-    if result[0] is None:
-        return 0
-
-    return result[0]
+    return total_expenses
 
 
-# PROPERTY INCOME
-
-def get_property_income(propertyID):
-
-    conn = connect_database()
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT SUM(amount)
-        FROM Transactions
-        WHERE propertyID = ?
-        AND transactionType = 'Income'
-    """, (propertyID,))
-
-    result = cursor.fetchone()
-
-    conn.close()
-
-    if result[0] is None:
-        return 0
-
-    return result[0]
-
-
-# DASHBOARD FINANCE CALCULATIONS
-
-
-# GET TOTAL INCOME
+# FINANCE STUFF
 
 def get_total_income(userID):
 
-    connection = connect_database()
-
-    cursor = connection.cursor()
-
+    conn = connect_database()
+    cursor = conn.cursor()
 
     cursor.execute("""
+        SELECT COALESCE(SUM(t.amount), 0)
 
-    SELECT SUM(Transactions.amount)
+        FROM Transactions t
 
-    FROM Transactions
+        INNER JOIN Properties p
+            ON t.propertyID = p.propertyID
 
-    JOIN Properties
+        WHERE p.userID = ?
+        AND t.transactionType = 'Income'
+    """, (userID,))
 
-    ON Transactions.propertyID = Properties.propertyID
+    total_income = cursor.fetchone()[0]
 
-    WHERE Properties.userID = ?
+    conn.close()
 
-    AND Transactions.transactionType = 'Income'
-
-    """,
-
-    (userID,))
-
-
-    result = cursor.fetchone()[0]
+    return total_income
 
 
-    connection.close()
-
-
-    return result if result else 0
-
-
-# PROPERTY INCOME
-def get_property_income(propertyID):
+def get_total_expenses(userID):
 
     conn = connect_database()
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT SUM(amount)
-        FROM Transactions
-        WHERE propertyID = ?
-        AND transactionType = 'Income'
-    """, (propertyID,))
+        SELECT COALESCE(SUM(t.amount), 0)
 
-    result = cursor.fetchone()
+        FROM Transactions t
+
+        INNER JOIN Properties p
+            ON t.propertyID = p.propertyID
+
+        WHERE p.userID = ?
+        AND t.transactionType = 'Expense'
+    """, (userID,))
+
+    total_expenses = cursor.fetchone()[0]
 
     conn.close()
 
-    if result[0] is None:
-        return 0
+    return total_expenses
 
-    return result[0]
-
-
-# GET TOTAL EXPENSES
-
-def get_total_expenses(userID):
-
-    connection = connect_database()
-
-    cursor = connection.cursor()
-
-
-
-    cursor.execute("""
-
-    SELECT SUM(Transactions.amount)
-
-    FROM Transactions
-
-    JOIN Properties
-
-    ON Transactions.propertyID = Properties.propertyID
-
-    WHERE Properties.userID = ?
-
-    AND Transactions.transactionType = 'Expense'
-
-    """,
-
-    (userID,))
-
-
-
-    result = cursor.fetchone()[0]
-
-
-    connection.close()
-
-
-    return result if result else 0
-
-
-
-
-
-# GET NET PROFIT
 
 def get_net_profit(userID):
 
+    total_income = get_total_income(userID)
+    total_expenses = get_total_expenses(userID)
 
-    income = get_total_income(userID)
-
-
-    expenses = get_total_expenses(userID)
-
-
-    return income - expenses
+    return total_income - total_expenses
 
 
-
-# CREATE REPORT
+# REPORT
 
 def create_report(
-
     userID,
     reportType,
     startDate,
@@ -636,18 +558,26 @@ def create_report(
     netProfit,
     roi,
     predictedInsights
-
 ):
 
-    connection = connect_database()
-
-    cursor = connection.cursor()
-
+    conn = connect_database()
+    cursor = conn.cursor()
 
     cursor.execute("""
-
-    INSERT INTO Reports(
-
+        INSERT INTO Reports (
+            userID,
+            reportType,
+            startDate,
+            endDate,
+            totalIncome,
+            totalExpense,
+            totalBills,
+            netProfit,
+            roi,
+            predictedInsights
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
         userID,
         reportType,
         startDate,
@@ -658,104 +588,52 @@ def create_report(
         netProfit,
         roi,
         predictedInsights
-
-    )
-
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-
-    """,
-
-    (
-
-        userID,
-        reportType,
-        startDate,
-        endDate,
-        totalIncome,
-        totalExpense,
-        totalBills,
-        netProfit,
-        roi,
-        predictedInsights
-
     ))
 
-    connection.commit()
+    reportID = cursor.lastrowid
 
-    connection.close()
+    conn.commit()
+    conn.close()
 
+    return reportID
 
-
-
-
-# READ REPORTS 
 
 def get_reports(userID):
 
-    # CONNECT TO DATABASE
-
-    connection = connect_database()
-
-    cursor = connection.cursor()
-
+    conn = connect_database()
+    cursor = conn.cursor()
 
     cursor.execute("""
-    SELECT *
-
-    FROM Reports
-
-    WHERE userID = ?
-
-    """,
-
-    (userID,))
-
-
+        SELECT *
+        FROM Reports
+        WHERE userID = ?
+        ORDER BY reportID DESC
+    """, (userID,))
 
     reports = cursor.fetchall()
 
-
-    connection.close()
-
+    conn.close()
 
     return reports
 
 
+def get_report(reportID, userID):
 
-# GET TRANSACTIONS FOR REPORTS
-
-def get_report_transactions(propertyID, startDate, endDate):
-
-    connection = connect_database()
-
-    cursor = connection.cursor()
-
+    conn = connect_database()
+    cursor = conn.cursor()
 
     cursor.execute("""
-    
-    SELECT *
-
-    FROM Transactions
-
-    WHERE propertyID = ?
-
-    AND date BETWEEN ? AND ?
-
-    ORDER BY date ASC
-
-    """,
-
-    (
-        propertyID,
-        startDate,
-        endDate
+        SELECT *
+        FROM Reports
+        WHERE reportID = ?
+        AND userID = ?
+    """, (
+        reportID,
+        userID
     ))
 
+    report = cursor.fetchone()
 
-    transactions = cursor.fetchall()
+    conn.close()
 
-
-    connection.close()
-
-
-    return transactions
+    return report

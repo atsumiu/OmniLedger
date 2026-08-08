@@ -1,17 +1,34 @@
-# Purpose: tables and stuff
-
-
-
 import sqlite3
 
 
-connection = sqlite3.connect("omniledger_system.db")
+DATABASE_NAME = "omniledger_system.db"
+
+
+def connect_database():
+
+    connection = sqlite3.connect(
+        DATABASE_NAME
+    )
+
+    connection.row_factory = sqlite3.Row
+
+
+    # FOREIGN KEYS
+
+    connection.execute(
+        "PRAGMA foreign_keys = ON"
+    )
+
+
+    return connection
+
+
+connection = connect_database()
 
 cursor = connection.cursor()
 
 
-
-# USER TABLE
+# USERS
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Users(
@@ -30,8 +47,7 @@ CREATE TABLE IF NOT EXISTS Users(
 """)
 
 
-
-# PROPERTIES TABLE
+# PROPERTIES
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Properties(
@@ -71,8 +87,7 @@ CREATE TABLE IF NOT EXISTS Properties(
 """)
 
 
-
-# TRANSACTIONS TABLE
+# TRANSACTIONS
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Transactions(
@@ -104,7 +119,7 @@ CREATE TABLE IF NOT EXISTS Transactions(
 """)
 
 
-# REPORTS TABLE
+# REPORTS
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Reports(
@@ -138,8 +153,7 @@ CREATE TABLE IF NOT EXISTS Reports(
 """)
 
 
-
-# MARKET DATA TABLE
+# MARKET DATA
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS MarketData(
@@ -161,7 +175,6 @@ CREATE TABLE IF NOT EXISTS MarketData(
 
 
 connection.commit()
-
 
 connection.close()
 

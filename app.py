@@ -1,4 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    session,
+    flash
+)
 
 from datetime import datetime
 
@@ -6,314 +14,549 @@ import os
 
 from werkzeug.utils import secure_filename
 
+
+from utils.report_generator import (
+    create_financial_report,
+    generate_and_save_report
+)
+
+
 from utils.calculations import (
     calculate_rental_roi,
     calculate_total_roi
 )
 
+
 from database.models import (
     create_user,
     check_user,
+
     create_property,
-    create_transaction,
     get_property,
-    get_transactions,
-    update_property,
-    get_property_expenses,
-    get_property_income,
     get_properties,
-    get_report_transactions,
-    create_report,
-    get_reports
+    update_property,
+
+    create_transaction,
+    get_transactions,
+
+    get_property_income,
+    get_property_expenses,
+
+    get_reports,
+    get_report
 )
 
 
-# CREATING FLASK
+
+
 app = Flask(__name__)
 
-# STORE LOGIN SESSION
 app.secret_key = "omniledger_secret_key"
 
 
-# LOGIN 
+# LOGIN
 
 @app.route("/", methods=["GET", "POST"])
 def login():
 
     if request.method == "POST":
 
-
         email = request.form["email"]
 
         password = request.form["password"]
 
-        user = check_user(email, password)
+        user = check_user(
+            email,
+            password
+        )
 
 
         if user:
 
-
             session["logged_in"] = True
+
             session["userID"] = user["userID"]
+
             session["name"] = user["name"]
+
             session["email"] = user["email"]
 
-            return redirect(url_for("dashboard"))
+            return redirect(
+                url_for("dashboard")
+            )
 
 
         else:
 
-            flash("Incorrect email or password", "error")
+            flash(
+                "Incorrect email or password",
+                "error"
+            )
 
-            return redirect(url_for("login"))
+            return redirect(
+                url_for("login")
+            )
 
 
-
-    # SHOW LOGIN PAGE
-
-    return render_template("login.html")
+    return render_template(
+        "login.html"
+    )
 
 
 # DASHBOARD
+
 @app.route("/dashboard")
 def dashboard():
 
+    # Make sure user is logged in
+
+    if "userID" not in session:
+
+        return redirect(
+            url_for("login")
+        )
+
+
+    userID = session["userID"]
+
+
+    # Import financial functions here
+
     from database.models import (
-        get_properties,
         get_total_income,
         get_total_expenses,
         get_net_profit
     )
 
-    userID = session["userID"]
 
-    properties = get_properties(userID)
+    properties = get_properties(
+        userID
+    )
 
-    total_income = get_total_income(userID)
 
-    total_expenses = get_total_expenses(userID)
+    total_income = get_total_income(
+        userID
+    )
 
-    net_profit = get_net_profit(userID)
+
+    total_expenses = get_total_expenses(
+        userID
+    )
+
+
+    net_profit = get_net_profit(
+        userID
+    )
+
 
     return render_template(
+
         "dashboard.html",
+
         properties=properties,
+
         totalIncome=total_income,
+
         totalExpenses=total_expenses,
+
         netProfit=net_profit
     )
 
 
-
-# REPORTS PAGE
+# REPORTS
 
 @app.route("/reports")
 def reports():
-
-    from database.models import get_properties
 
     userID = session["userID"]
 
     properties = get_properties(userID)
 
+    reports = get_reports(userID)
 
     return render_template(
         "reports.html",
-        properties=properties
+        properties=properties,
+        reports=reports
     )
 
-
-
 # GENERATE REPORT
-@app.route("/generate_report", methods=["POST"])
+
+@app.route(
+    "/generate_report",
+    methods=["POST"]
+)
 def generate_report():
+
+    if "userID" not in session:
+
+        return redirect(
+            url_for("login")
+        )
+
 
     userID = session["userID"]
 
 
-    propertyID = request.form["property"]
-
-    reportType = request.form["reportType"]
-
-    startDate = request.form["startDate"]
-
-    endDate = request.form["endDate"]
-
-
-
-    transactions = get_report_transactions(
-        propertyID,
-        startDate,
-        endDate
+    reportType = request.form.get(
+        "reportType",
+        "Financial Summary"
     )
 
 
+    propertyID = request.form.get(
+        "propertyID",
+        "all"
+    )
 
-    totalIncome = 0
 
-    totalExpense = 0
+    startDate = request.form.get(
+        "startDate"
+    )
 
-    receipt = request.files.get("receipt")
 
-    filename = None
+    endDate = request.form.get(
+        "endDate"
+    )
 
-    if receipt and receipt.filename:
 
-        filename = secure_filename(receipt.filename)
+    # VALIDATE DATE
 
-        filepath = os.path.join(
-            "static",
-            "uploads",
-            "receipts",
-            filename
+    if startDate and endDate:
+
+        try:
+
+            start = datetime.strptime(
+                startDate,
+                "%Y-%m-%d"
+            )
+
+            end = datetime.strptime(
+                endDate,
+                "%Y-%m-%d"
+            )
+
+
+            if end < start:
+
+                flash(
+                    "End date cannot be before start date.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("reports")
+                )
+
+
+        except ValueError:
+
+            flash(
+                "Invalid report dates.",
+                "error"
+            )
+
+            return redirect(
+                url_for("reports")
+            )
+
+
+    # VALIDATE PROP
+
+    if propertyID != "all":
+
+        selected_property = get_property(
+            propertyID,
+            userID
         )
 
-        receipt.save(filepath)
 
-    for transaction in transactions:
+        if selected_property is None:
 
+            flash(
+                "Selected property could not be found.",
+                "error"
+            )
 
-        if transaction[2] == "Income":
-
-            totalIncome += transaction[4]
-
-
-        elif transaction[2] == "Expense":
-
-            totalExpense += transaction[4]
+            return redirect(
+                url_for("reports")
+            )
 
 
+    # GENERATE & SAVE REPORT
 
-    netProfit = totalIncome - totalExpense
-
-
-
-    create_report(
+    report_data = generate_and_save_report(
 
         userID,
 
         reportType,
 
+        propertyID,
+
         startDate,
 
-        endDate,
-
-        totalIncome,
-
-        totalExpense,
-
-        0,
-
-        netProfit,
-
-        0,
-
-        "Generated automatically"
-
+        endDate
     )
 
+
+    properties = get_properties(
+        userID
+    )
+
+
+    saved_reports = get_reports(
+        userID
+    )
+
+
+    # SHOW REPORT
+
+    return render_template(
+
+        "reports.html",
+
+        properties=properties,
+
+        reports=saved_reports,
+
+        report=report_data,
+
+        totalIncome=report_data["totalIncome"],
+
+        totalExpenses=report_data["totalExpenses"],
+
+        netProfit=report_data["netProfit"],
+
+        gst=report_data["gst"],
+
+        rentalROI=report_data["rentalROI"],
+
+        totalROI=report_data["totalROI"],
+
+        cashFlow=report_data["cashFlow"],
+
+        balanceSheet=report_data["balanceSheet"],
+
+        incomeBreakdown=report_data["incomeBreakdown"],
+
+        expenseBreakdown=report_data["expenseBreakdown"],
+
+        transactions=report_data["transactions"],
+
+        propertyInformation=report_data[
+            "propertyInformation"
+        ],
+
+        propertyID=propertyID,
+
+        reportType=reportType,
+
+        startDate=startDate,
+
+        endDate=endDate
+    )
+
+
+# VIEW REPORT
+
+@app.route("/report/<int:reportID>")
+def view_report(reportID):
+
+    if "userID" not in session:
+
+        return redirect(
+            url_for("login")
+        )
+
+
+    userID = session["userID"]
+
+
+    report = get_report(
+        reportID,
+        userID
+    )
+
+
+    if report is None:
+
+        flash(
+            "Report could not be found.",
+            "error"
+        )
+
+        return redirect(
+            url_for("reports")
+        )
+
+
+    properties = get_properties(
+        userID
+    )
+
+
+    saved_reports = get_reports(
+        userID
+    )
 
 
     return render_template(
 
         "reports.html",
 
-        properties=get_properties(userID),
+        properties=properties,
 
-        report_generated=True,
+        reports=saved_reports,
 
-        totalIncome=totalIncome,
-
-        totalExpense=totalExpense,
-
-        netProfit=netProfit
-
+        savedReport=report
     )
-
 
 
 # PROPERTY DETAILS
+
 @app.route("/property/<propertyID>")
 def property_details(propertyID):
 
-    property = get_property(propertyID)
+    if "userID" not in session:
+
+        return redirect(
+            url_for("login")
+        )
+
+
+    userID = session["userID"]
+
+
+    # Make sure property belongs to logged-in user
+
+    property = get_property(
+        propertyID,
+        userID
+    )
+
 
     if property is None:
-        return redirect(url_for("dashboard"))
 
-    transactions = get_transactions(propertyID)
+        return redirect(
+            url_for("dashboard")
+        )
 
-    total_income = get_property_income(propertyID)
 
-    total_expenses = get_property_expenses(propertyID)
+    transactions = get_transactions(
+        propertyID
+    )
 
-    net_profit = total_income - total_expenses
+
+    total_income = get_property_income(
+        propertyID
+    )
+
+
+    total_expenses = get_property_expenses(
+        propertyID
+    )
+
+
+    net_profit = (
+        total_income
+        - total_expenses
+    )
+
 
     rentalROI = calculate_rental_roi(
+
         property["weeklyRent"] or 0,
+
         total_expenses,
+
         property["purchasePrice"] or 0
     )
 
+
     totalROI = calculate_total_roi(
+
         property["propertyValue"] or 0,
+
         property["purchasePrice"] or 0,
+
         property["weeklyRent"] or 0,
+
         total_expenses
     )
 
+
+    # EXPENSE GRAPH DATA
+
     expense_labels = [
+
         transaction[3]
+
         for transaction in transactions
+
         if transaction[2] == "Expense"
     ]
+
 
     expense_amounts = [
+
         transaction[4]
+
         for transaction in transactions
+
         if transaction[2] == "Expense"
     ]
 
-    has_expense_data = bool(expense_labels)
 
-    return render_template(
-        "property_details.html",
-        property=property,
-        transactions=transactions,
-        rentalROI=rentalROI,
-        totalROI=totalROI,
-        total_income=total_income,
-        total_expenses=total_expenses,
-        net_profit=net_profit,
-        expense_labels=expense_labels,
-        expense_amounts=expense_amounts,
-        has_expense_data=has_expense_data
+    has_expense_data = bool(
+        expense_labels
     )
 
+
+    return render_template(
+
+        "property_details.html",
+
+        property=property,
+
+        transactions=transactions,
+
+        total_income=total_income,
+
+        total_expenses=total_expenses,
+
+        net_profit=net_profit,
+
+        rentalROI=rentalROI,
+
+        totalROI=totalROI,
+
+        expense_labels=expense_labels,
+
+        expense_amounts=expense_amounts,
+
+        has_expense_data=has_expense_data
+    )
 
 
 # LOGOUT
 
 @app.route("/logout")
-
 def logout():
-
-    # REMOVE USER LOGIN SESSION
 
     session.clear()
 
-
-    # RETURN TO LOGIN PAGE
-
-    return redirect(url_for("login"))
+    return redirect(
+        url_for("login")
+    )
 
 
 # CREATE ACCOUNT
 
-@app.route("/create-account", methods=["GET", "POST"])
-
+@app.route(
+    "/create-account",
+    methods=["GET", "POST"]
+)
 def create_account():
-
 
     if request.method == "POST":
 
@@ -324,124 +567,190 @@ def create_account():
         password = request.form["password"]
 
 
-        create_user(name, email, password)
+        create_user(
+            name,
+            email,
+            password
+        )
 
 
-        return redirect(url_for("login"))
+        return redirect(
+            url_for("login")
+        )
 
 
-
-    return render_template("create_account.html")
+    return render_template(
+        "create_account.html"
+    )
 
 
 # ADD PROPERTY
 
-@app.route("/add_property", methods=["GET", "POST"])
+@app.route(
+    "/add_property",
+    methods=["GET", "POST"]
+)
 def add_property():
+
+    if "userID" not in session:
+
+        return redirect(
+            url_for("login")
+        )
 
 
     if request.method == "POST":
 
+        # BASIC INFO
 
-        # BASIC INFORMATION
-
-        address = request.form["propertyAddress"].strip()
-
-        propertyType = request.form["propertyType"]
-
-        ownership = request.form["ownershipData"].strip()
+        address = request.form[
+            "propertyAddress"
+        ].strip()
 
 
+        propertyType = request.form[
+            "propertyType"
+        ]
 
-        # VALIDATION - REQUIRED FIELDS
+
+        ownership = request.form[
+            "ownershipData"
+        ].strip()
+
+
+        # REQUIRED FIELDS
 
         if not address or not ownership:
 
-            flash("Property address and ownership are required.", "error")
+            flash(
+                "Property address and ownership are required.",
+                "error"
+            )
 
-            return redirect(url_for("add_property"))
-
-
-
-
-        # TENANT AND LEASE INFORMATION
-
-        tenantName = request.form["tenantName"].strip()
-
-        leaseStatus = request.form["leaseStatus"]
-
-        leaseStart = request.form["leaseStart"]
-
-        leaseEnd = request.form["leaseEnd"]
+            return redirect(
+                url_for("add_property")
+            )
 
 
+        tenantName = request.form[
+            "tenantName"
+        ].strip()
 
 
-        # CHECK LEASE DATES
+        leaseStatus = request.form[
+            "leaseStatus"
+        ]
+
+
+        leaseStart = request.form[
+            "leaseStart"
+        ]
+
+
+        leaseEnd = request.form[
+            "leaseEnd"
+        ]
+
+
+        # LEASE DATES
 
         if leaseStart and leaseEnd:
 
-            start = datetime.strptime(leaseStart, "%Y-%m-%d")
+            start = datetime.strptime(
+                leaseStart,
+                "%Y-%m-%d"
+            )
 
-            end = datetime.strptime(leaseEnd, "%Y-%m-%d")
+
+            end = datetime.strptime(
+                leaseEnd,
+                "%Y-%m-%d"
+            )
 
 
             if end < start:
 
-                flash("Lease end date cannot be before lease start date.", "error")
+                flash(
+                    "Lease end date cannot be before lease start date.",
+                    "error"
+                )
 
-                return redirect(url_for("add_property"))
+                return redirect(
+                    url_for("add_property")
+                )
 
-
-
-
-        # FINANCIAL INFORMATION (OPTIONAL)
 
         try:
 
-            weeklyRent = float(request.form.get("weeklyRent", 0) or 0)
+            weeklyRent = float(
+                request.form.get(
+                    "weeklyRent",
+                    0
+                ) or 0
+            )
 
-            propertyValue = float(request.form.get("propertyValue", 0) or 0)
 
-            purchasePrice = float(request.form.get("purchasePrice", 0) or 0)
+            propertyValue = float(
+                request.form.get(
+                    "propertyValue",
+                    0
+                ) or 0
+            )
+
+
+            purchasePrice = float(
+                request.form.get(
+                    "purchasePrice",
+                    0
+                ) or 0
+            )
 
 
         except ValueError:
 
-            flash("Financial values must only contain numbers.", "error")
+            flash(
+                "Financial values must only contain numbers.",
+                "error"
+            )
 
-            return redirect(url_for("add_property"))
-
-
-
-
-        # CHECK NEGATIVE VALUES
-
-
-        if weeklyRent < 0 or propertyValue < 0 or purchasePrice < 0:
-
-            flash("Financial values cannot be negative.", "error")
-
-            return redirect(url_for("add_property"))
+            return redirect(
+                url_for("add_property")
+            )
 
 
+        if (
+            weeklyRent < 0
+            or propertyValue < 0
+            or purchasePrice < 0
+        ):
 
-        bankAccount = request.form.get("bankAccount", "").strip()
+            flash(
+                "Financial values cannot be negative.",
+                "error"
+            )
 
-        notes = request.form.get("notes", "").strip()
+            return redirect(
+                url_for("add_property")
+            )
 
 
-        # CURRENT USER
+        bankAccount = request.form.get(
+            "bankAccount",
+            ""
+        ).strip()
+
+
+        notes = request.form.get(
+            "notes",
+            ""
+        ).strip()
+
 
         userID = session["userID"]
 
 
 
-
-        # SAVE PROPERTY
-
-
-        propertyID =create_property(
+        propertyID = create_property(
 
             userID,
 
@@ -468,58 +777,116 @@ def add_property():
             purchasePrice,
 
             notes
-
         )
 
 
+        flash(
+            "Property successfully added!",
+            "success"
+        )
 
-        flash("Property successfully added!", "success")
 
-        return redirect(url_for("dashboard"))
+        return redirect(
+            url_for("dashboard")
+        )
 
 
-
-    # SHOW ADD PROPERTY PAGE
-
-    return render_template("add_property.html")
+    return render_template(
+        "add_property.html"
+    )
 
 
 # EDIT PROPERTY
 
-@app.route("/edit_property/<propertyID>", methods=["GET", "POST"])
+@app.route(
+    "/edit_property/<propertyID>",
+    methods=["GET", "POST"]
+)
 def edit_property(propertyID):
 
+    if "userID" not in session:
 
-    property = get_property(propertyID)
+        return redirect(
+            url_for("login")
+        )
+
+
+    userID = session["userID"]
+
+
+    property = get_property(
+        propertyID,
+        userID
+    )
+
+
+    if property is None:
+
+        return redirect(
+            url_for("dashboard")
+        )
 
 
     if request.method == "POST":
 
+        propertyAddress = request.form[
+            "propertyAddress"
+        ]
 
-        propertyAddress = request.form["propertyAddress"]
 
-        propertyType = request.form["propertyType"]
+        propertyType = request.form[
+            "propertyType"
+        ]
 
-        ownershipData = request.form["ownershipData"]
 
-        tenantName = request.form["tenantName"]
+        ownershipData = request.form[
+            "ownershipData"
+        ]
 
-        leaseStatus = request.form["leaseStatus"]
 
-        leaseStart = request.form["leaseStart"]
+        tenantName = request.form[
+            "tenantName"
+        ]
 
-        leaseEnd = request.form["leaseEnd"]
 
-        weeklyRent = request.form["weeklyRent"]
+        leaseStatus = request.form[
+            "leaseStatus"
+        ]
 
-        bankAccount = request.form["bankAccount"]
 
-        propertyValue = request.form["propertyValue"]
+        leaseStart = request.form[
+            "leaseStart"
+        ]
 
-        purchasePrice = request.form["purchasePrice"]
 
-        notes = request.form["notes"]
+        leaseEnd = request.form[
+            "leaseEnd"
+        ]
 
+
+        weeklyRent = request.form[
+            "weeklyRent"
+        ]
+
+
+        bankAccount = request.form[
+            "bankAccount"
+        ]
+
+
+        propertyValue = request.form[
+            "propertyValue"
+        ]
+
+
+        purchasePrice = request.form[
+            "purchasePrice"
+        ]
+
+
+        notes = request.form[
+            "notes"
+        ]
 
 
         update_property(
@@ -549,11 +916,13 @@ def edit_property(propertyID):
             purchasePrice,
 
             notes
-
         )
 
 
-        flash("Property updated successfully!", "success")
+        flash(
+            "Property updated successfully!",
+            "success"
+        )
 
 
         return redirect(
@@ -563,11 +932,8 @@ def edit_property(propertyID):
                 "property_details",
 
                 propertyID=propertyID
-
             )
-
         )
-
 
 
     return render_template(
@@ -575,33 +941,148 @@ def edit_property(propertyID):
         "edit_property.html",
 
         property=property
-
     )
-
 
 
 # ADD TRANSACTION
 
-@app.route("/add_transaction/<propertyID>", methods=["GET", "POST"])
+@app.route(
+    "/add_transaction/<propertyID>",
+    methods=["GET", "POST"]
+)
 def add_transaction(propertyID):
+
+    if "userID" not in session:
+
+        return redirect(
+            url_for("login")
+        )
+
+
+    userID = session["userID"]
+
+
+    property = get_property(
+        propertyID,
+        userID
+    )
+
+
+    if property is None:
+
+        return redirect(
+            url_for("dashboard")
+        )
 
 
     if request.method == "POST":
 
-
-        transactionType = request.form["transactionType"]
-
-        category = request.form["category"]
-
-        amount = float(request.form["amount"])
-
-        date = request.form["date"]
-
-        paymentMethod = request.form["paymentMethod"]
-
-        description = request.form["description"]
+        transactionType = request.form[
+            "transactionType"
+        ]
 
 
+        category = request.form[
+            "category"
+        ]
+
+
+        try:
+
+            amount = float(
+                request.form["amount"]
+            )
+
+        except ValueError:
+
+            flash(
+                "Transaction amount must be a number.",
+                "error"
+            )
+
+            return redirect(
+                url_for(
+                    "add_transaction",
+                    propertyID=propertyID
+                )
+            )
+
+
+        if amount < 0:
+
+            flash(
+                "Transaction amount cannot be negative.",
+                "error"
+            )
+
+            return redirect(
+                url_for(
+                    "add_transaction",
+                    propertyID=propertyID
+                )
+            )
+
+
+        date = request.form[
+            "date"
+        ]
+
+
+        paymentMethod = request.form[
+            "paymentMethod"
+        ]
+
+
+        description = request.form[
+            "description"
+        ]
+
+
+        attachment = None
+
+
+        # UPLOAD RECEIPTS
+
+        receipt = request.files.get(
+            "receipt"
+        )
+
+
+        if receipt and receipt.filename:
+
+            filename = secure_filename(
+                receipt.filename
+            )
+
+
+            upload_folder = os.path.join(
+                "static",
+                "uploads",
+                "receipts"
+            )
+
+
+            os.makedirs(
+                upload_folder,
+                exist_ok=True
+            )
+
+
+            filepath = os.path.join(
+                upload_folder,
+                filename
+            )
+
+
+            receipt.save(
+                filepath
+            )
+
+
+            attachment = filename
+
+
+        # SAVE TRANSACTION
 
         create_transaction(
 
@@ -619,32 +1100,37 @@ def add_transaction(propertyID):
 
             description,
 
-            None
-
+            attachment
         )
 
 
-        flash("Transaction successfully added!", "success")
+        flash(
+            "Transaction successfully added!",
+            "success"
+        )
 
 
         return redirect(
+
             url_for(
+
                 "property_details",
+
                 propertyID=propertyID
             )
         )
 
 
-
     return render_template(
+
         "add_transaction.html",
+
         propertyID=propertyID
     )
 
 
-# RUN WEBSITE
 if __name__ == "__main__":
-    app.run(debug=True)
 
-
-
+    app.run(
+        debug=True
+    )

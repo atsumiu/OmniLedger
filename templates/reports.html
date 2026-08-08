@@ -1,10 +1,6 @@
-<!-- Purpose: Report Creation Page -->
-
-
 <!DOCTYPE html>
 
 <html lang="en">
-
 
 <head>
 
@@ -12,714 +8,988 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
     <title>Reports - OmniLedger</title>
-
-
-    <!-- Poppins Font -->
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-
-    <!-- CSS -->
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/reports.css') }}">
-
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/reports.css') }}"
+    >
 
 </head>
-
-
 
 
 <body>
 
 
-
 <div class="dashboard-container">
 
 
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
 
 
+        <div class="user-profile">
 
-<!-- SIDEBAR -->
+            <div class="profile-image">
+                👤
+            </div>
 
+            <p class="hello-text">
+                Hello!
+            </p>
 
-<aside class="sidebar">
-
-
-    <div class="user-profile">
-
-
-        <div class="profile-image">
-
-            👤
+            <h3>
+                {{ session["name"] }}
+            </h3>
 
         </div>
 
 
-        <p class="hello-text">
+        <div class="search-sidebar">
 
-            Hello!
+            <input
+                type="text"
+                placeholder="Search"
+            >
 
-        </p>
+        </div>
 
 
-        <h3>
+        <nav class="sidebar-menu">
 
-            {{ session["name"] }}
 
-        </h3>
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
 
 
-    </div>
+            <a href="#">
+                Statistics
+            </a>
 
 
+            <a href="#" class="active">
+                Reports
+            </a>
 
 
+            <a href="{{ url_for('dashboard') }}">
+                Properties
+            </a>
 
-    <div class="search-sidebar">
 
+            <a href="#">
+                AI Analytics
+            </a>
 
-        <input 
-        type="text"
-        placeholder="Search">
 
+            <hr>
 
-    </div>
 
+            <a href="#">
+                Settings
+            </a>
 
 
+            <a href="{{ url_for('logout') }}">
+                Log Out
+            </a>
 
 
-    <nav class="sidebar-menu">
+            <a href="#">
+                Help
+            </a>
 
 
-        <a href="{{ url_for('dashboard') }}">
+        </nav>
 
-            Dashboard
+    </aside>
 
-        </a>
 
 
+    <!-- MAIN -->
 
-        <a href="#">
+    <main class="main-content">
 
-            Statistics
 
-        </a>
+        <!-- PAGE HEADER -->
 
+        <header class="top-header">
 
+            <div class="logo-section">
 
-        <a href="#" class="active">
+                <h2>
+                    Financial Reports
+                </h2>
 
-            Reports
+                <p>
+                    Create professional financial reports for properties and portfolios.
+                </p>
 
-        </a>
+            </div>
 
+        </header>
 
 
-        <a href="{{ url_for('dashboard') }}">
 
-            Properties
+        <!-- REPORT LAYOUT -->
 
-        </a>
+        <section class="report-layout">
 
 
+            <!-- SETTINGS -->
 
-        <a href="#">
+            <form
+                class="report-card"
+                method="POST"
+                enctype="multipart/form-data"
+                action="{{ url_for('generate_report') }}"
+            >
 
-            AI Analytics
 
-        </a>
+                <div class="card-heading">
 
+                    <h3>
+                        Create Report
+                    </h3>
 
+                    <p>
+                        Select the information you want included.
+                    </p>
 
+                </div>
 
-        <hr>
 
 
+                <!-- PROPERTY -->
 
+                <div class="form-group">
 
-        <a href="#">
+                    <label for="property">
+                        Property / Portfolio
+                    </label>
 
-            Settings
+                    <select
+                        name="property"
+                        id="property"
+                    >
 
-        </a>
+                        <option value="all">
+                            All Properties
+                        </option>
 
 
+                        {% for property in properties %}
 
-        <a href="{{ url_for('logout') }}">
+                        <option value="{{ property[0] }}">
 
-            Log Out
+                            {{ property[2] }}
 
-        </a>
+                        </option>
 
+                        {% endfor %}
 
+                    </select>
 
-        <a href="#">
+                    <small>
+                        Select an individual property or generate a portfolio-wide report.
+                    </small>
 
-            Help
+                </div>
 
-        </a>
 
 
+                <!-- REPORT TYPE -->
 
-    </nav>
+                <div class="form-group">
 
+                    <label for="reportType">
+                        Report Type
+                    </label>
 
+                    <select
+                        name="reportType"
+                        id="reportType"
+                    >
 
-</aside>
+                        <option value="profit_loss">
+                            Profit & Loss Statement
+                        </option>
 
+                        <option value="cash_flow">
+                            Cash Flow Statement
+                        </option>
 
+                        <option value="rental_statement">
+                            Rental Property Statement
+                        </option>
 
+                        <option value="transactions">
+                            Expense & Transaction Report
+                        </option>
 
+                        <option value="tax_summary">
+                            Tax & GST Summary
+                        </option>
 
+                        <option value="property_performance">
+                            Property Performance Report
+                        </option>
 
+                        <option value="portfolio_summary">
+                            Portfolio Summary
+                        </option>
 
+                        <option value="balance_sheet">
+                            Balance Sheet
+                        </option>
 
-<!-- MAIN CONTENT -->
+                    </select>
 
+                    <small>
+                        Choose the financial statement or analysis you need.
+                    </small>
 
-<main class="main-content">
+                </div>
 
 
 
+                <!-- REPORTING PERIOD -->
 
+                <div class="form-section-title">
 
-<header class="top-header">
+                    <h4>
+                        Reporting Period
+                    </h4>
 
+                </div>
 
-    <div class="logo-section">
 
+                <div class="date-grid">
 
-        <h2>
 
-            Report Creation
+                    <div class="form-group">
 
-        </h2>
+                        <label for="startDate">
+                            Start Date
+                        </label>
 
+                        <input
+                            type="date"
+                            name="startDate"
+                            id="startDate"
+                            required
+                        >
 
-    </div>
+                    </div>
 
 
-</header>
+                    <div class="form-group">
 
+                        <label for="endDate">
+                            End Date
+                        </label>
 
+                        <input
+                            type="date"
+                            name="endDate"
+                            id="endDate"
+                            required
+                        >
 
+                    </div>
 
 
+                </div>
 
 
 
+                <!-- REPORT OPTIONS -->
 
-<section class="report-layout">
+                <div class="form-section-title">
 
+                    <h4>
+                        Report Options
+                    </h4>
 
+                </div>
 
 
+                <div class="report-options">
 
-<!-- REPORT SETTINGS -->
 
+                    <label class="checkbox-option">
 
-<form
-    class="report-card"
-    method="POST"
-    enctype="multipart/form-data"
-    action="{{ url_for('generate_report') }}">
+                        <input
+                            type="checkbox"
+                            name="includeTransactions"
+                            value="1"
+                            checked
+                        >
 
+                        <span>
+                            Include transaction details
+                        </span>
 
-<h3>
+                    </label>
 
-Create Report
 
-</h3>
+                    <label class="checkbox-option">
 
+                        <input
+                            type="checkbox"
+                            name="includeGST"
+                            value="1"
+                            checked
+                        >
 
+                        <span>
+                            Include GST information
+                        </span>
 
-<label>
+                    </label>
 
-Property
 
-</label>
+                    <label class="checkbox-option">
 
+                        <input
+                            type="checkbox"
+                            name="includeReceipts"
+                            value="1"
+                            checked
+                        >
 
-<select name="property">
+                        <span>
+                            Include receipt/document status
+                        </span>
 
+                    </label>
 
-<option>
 
-Select Property
+                    <label class="checkbox-option">
 
-</option>
+                        <input
+                            type="checkbox"
+                            name="includePropertyDetails"
+                            value="1"
+                            checked
+                        >
 
+                        <span>
+                            Include property information
+                        </span>
 
-{% for property in properties %}
+                    </label>
 
 
-<option value="{{ property[0] }}">
+                </div>
 
-{{ property[2] }}
 
-</option>
 
+                <!-- NOTES -->
 
-{% endfor %}
+                <div class="form-group">
 
+                    <label for="notes">
+                        Additional Notes
+                    </label>
 
-<option>
+                    <textarea
+                        name="notes"
+                        id="notes"
+                        placeholder="Add notes for the accountant, financial reviewer or report..."
+                    ></textarea>
 
-All Properties
+                </div>
 
-</option>
 
 
-</select>
+                <!-- DOCUMENT UPLOAD -->
 
+                <div class="form-section-title">
 
+                    <h4>
+                        Supporting Documents
+                    </h4>
 
+                </div>
 
 
+                <div class="upload-box">
 
 
-<label>
+                    <div class="upload-icon">
+                        📄
+                    </div>
 
-Report Type
 
-</label>
+                    <p class="upload-title">
+                        Upload receipts or invoices
+                    </p>
 
 
-<select name="reportType">
+                    <p class="upload-description">
+                        Attach supporting financial documents to the report.
+                    </p>
 
 
-<option>
+                    <input
+                        class="file-upload"
+                        type="file"
+                        name="receipt"
+                        accept=".pdf,.png,.jpg,.jpeg,.webp"
+                    >
 
-Financial Summary
 
-</option>
+                    <small>
+                        PDF, PNG, JPG and JPEG files supported.
+                    </small>
 
 
-<option>
+                </div>
 
-Income & Expense Report
 
-</option>
 
+                <!-- GENERATE -->
 
-<option>
+                <button
+                    class="generate-button"
+                    type="submit"
+                >
 
-Rental Performance
+                    Generate Financial Report
 
-</option>
+                </button>
 
 
-<option>
+            </form>
 
-ROI Analysis
 
-</option>
 
+            <!-- PREVIEW -->
 
-<option>
+            <div class="report-preview-card">
 
-Tax Summary
 
-</option>
+                <div class="preview-header">
 
+                    <div>
 
-</select>
+                        <h3>
+                            Report Preview
+                        </h3>
 
+                        <p>
+                            Preview of the generated financial statement.
+                        </p>
 
+                    </div>
 
 
+                    <span class="report-status">
+                        Preview
+                    </span>
 
+                </div>
 
 
 
-<label>
+                <!-- PAPER -->
 
-Start Date
+                <div class="preview-paper">
 
-</label>
 
+                    <!-- REPORT HEADER -->
 
-<input type="date" name="startDate">
+                    <div class="report-document-header">
 
+                        <h2>
+                            OMNILEDGER
+                        </h2>
 
+                        <p>
+                            Financial Management System
+                        </p>
 
+                        <h4>
+                            Profit & Loss Statement
+                        </h4>
 
+                    </div>
 
-<label>
 
-End Date
+                    <hr>
 
-</label>
 
+                    <!-- REPORT INFORMATION -->
 
-<input type="date" name="endDate">
+                    <div class="report-meta">
 
 
+                        <div>
 
+                            <strong>
+                                Property
+                            </strong>
 
+                            <span>
+                                All Properties
+                            </span>
 
+                        </div>
 
 
+                        <div>
 
-<label>
+                            <strong>
+                                Reporting Period
+                            </strong>
 
-Additional Notes
+                            <span>
+                                {{ startDate if startDate else "DD/MM/YYYY" }}
+                                -
+                                {{ endDate if endDate else "DD/MM/YYYY" }}
+                            </span>
 
-</label>
+                        </div>
 
 
-<textarea 
-    name="notes" 
-    placeholder="Add report notes...">
-</textarea>
+                        <div>
 
+                            <strong>
+                                Report ID
+                            </strong>
 
+                            <span>
+                                Pending
+                            </span>
 
+                        </div>
 
 
+                    </div>
 
 
-<label>
 
-Upload Documents
+                    <!-- PROFIT -->
 
-</label>
+                    <section class="financial-section">
 
-<div class="upload-box">
 
-    <p> 
-        Upload receipt or invoice
-    </p>
+                        <h5>
+                            Income
+                        </h5>
 
-    <input
-        class="file-upload"
-        type="file"
-        name="receipt"
-        accept=".pdf,.png,.jpg,.jpeg">
+
+                        <div class="financial-row">
+
+                            <span>
+                                Rental Income
+                            </span>
+
+                            <strong>
+                                ${{ totalIncome if totalIncome else "0.00" }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="financial-row">
+
+                            <span>
+                                Other Income
+                            </span>
+
+                            <strong>
+                                $0.00
+                            </strong>
+
+                        </div>
+
+
+                        <div class="financial-total">
+
+                            <span>
+                                Total Income
+                            </span>
+
+                            <strong>
+                                ${{ totalIncome if totalIncome else "0.00" }}
+                            </strong>
+
+                        </div>
+
+
+                    </section>
+
+
+
+                    <section class="financial-section">
+
+
+                        <h5>
+                            Expenses
+                        </h5>
+
+
+                        <div class="financial-row">
+
+                            <span>
+                                Property Management
+                            </span>
+
+                            <strong>
+                                $0.00
+                            </strong>
+
+                        </div>
+
+
+                        <div class="financial-row">
+
+                            <span>
+                                Maintenance
+                            </span>
+
+                            <strong>
+                                $0.00
+                            </strong>
+
+                        </div>
+
+
+                        <div class="financial-row">
+
+                            <span>
+                                Insurance
+                            </span>
+
+                            <strong>
+                                $0.00
+                            </strong>
+
+                        </div>
+
+
+                        <div class="financial-row">
+
+                            <span>
+                                Mortgage / Interest
+                            </span>
+
+                            <strong>
+                                $0.00
+                            </strong>
+
+                        </div>
+
+
+                        <div class="financial-row">
+
+                            <span>
+                                Other Expenses
+                            </span>
+
+                            <strong>
+                                ${{ totalExpense if totalExpense else "0.00" }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="financial-total">
+
+                            <span>
+                                Total Expenses
+                            </span>
+
+                            <strong>
+                                ${{ totalExpense if totalExpense else "0.00" }}
+                            </strong>
+
+                        </div>
+
+
+                    </section>
+
+
+
+                    <!-- NET PROFIT -->
+
+                    <section class="net-profit-section">
+
+                        <span>
+                            Net Profit / (Loss)
+                        </span>
+
+                        <strong>
+                            ${{ netProfit if netProfit else "0.00" }}
+                        </strong>
+
+                    </section>
+
+
+
+                    <!-- GST -->
+
+                    <section class="financial-section">
+
+
+                        <h5>
+                            GST Summary
+                        </h5>
+
+
+                        <div class="financial-row">
+
+                            <span>
+                                GST on recorded income
+                            </span>
+
+                            <strong>
+                                $0.00
+                            </strong>
+
+                        </div>
+
+
+                        <div class="financial-row">
+
+                            <span>
+                                GST on recorded expenses
+                            </span>
+
+                            <strong>
+                                $0.00
+                            </strong>
+
+                        </div>
+
+
+                        <div class="financial-total">
+
+                            <span>
+                                Net GST Position
+                            </span>
+
+                            <strong>
+                                $0.00
+                            </strong>
+
+                        </div>
+
+
+                    </section>
+
+
+
+                    <!-- DOCUMENTATION -->
+
+                    <section class="financial-section">
+
+
+                        <h5>
+                            Documentation Status
+                        </h5>
+
+
+                        <div class="financial-row">
+
+                            <span>
+                                Transactions recorded
+                            </span>
+
+                            <strong>
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="financial-row">
+
+                            <span>
+                                Receipts attached
+                            </span>
+
+                            <strong>
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="financial-row">
+
+                            <span>
+                                Missing documentation
+                            </span>
+
+                            <strong>
+                                0
+                            </strong>
+
+                        </div>
+
+
+                    </section>
+
+
+
+                    <!-- FOOTER -->
+
+                    <hr>
+
+
+                    <div class="report-footer">
+
+                        <p>
+                            Generated by OmniLedger
+                        </p>
+
+                        <p>
+                            For financial management and review purposes
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- DOWNLOAD -->
+
+                <button
+                    class="download-button"
+                    type="button"
+                >
+
+                    Download PDF
+
+                </button>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- RECENT REPORTS LIST -->
+
+        <section class="recent-reports">
+
+
+            <div class="recent-header">
+
+                <div>
+
+                    <h3>
+                        Recent Reports
+                    </h3>
+
+                    <p>
+                        Previously generated financial reports.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {% if reports %}
+
+
+                {% for report in reports %}
+
+                <div class="report-history-card">
+
+
+                    <div class="report-history-info">
+
+                        <h4>
+                            {{ report[2] }}
+                        </h4>
+
+                        <p>
+                            {{ report[3] }}
+                            -
+                            {{ report[4] }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="report-history-values">
+
+                        <span>
+                            Net Profit
+                        </span>
+
+                        <strong>
+                            ${{ "%.2f"|format(report[8] or 0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="view-report-button"
+                    >
+
+                        View
+
+                    </button>
+
+
+                </div>
+
+                {% endfor %}
+
+
+            {% else %}
+
+                <div class="empty-reports">
+
+                    <div>
+                        📄
+                    </div>
+
+                    <h4>
+                        No reports generated yet
+                    </h4>
+
+                    <p>
+                        Your generated financial reports will appear here.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+
+        </section>
+
+
+    </main>
+
 
 </div>
-
-
-
-
-
-
-
-<button class="generate-button" type="submit">
-
-Generate Report
-
-</button>
-
-
-
-</form>
-
-
-
-
-
-
-
-
-
-<!-- REPORT PREVIEW -->
-
-
-<div class="report-preview-card">
-
-
-<h3>
-
-Report Preview
-
-</h3>
-
-
-
-
-
-<div class="preview-paper">
-
-
-
-<h2>
-
-OmniLedger
-
-</h2>
-
-
-
-<h4>
-
-Financial Summary Report
-
-</h4>
-
-
-
-
-<hr>
-
-
-
-
-
-<p>
-
-<strong>
-
-Property:
-
-</strong>
-
-Select a property
-
-</p>
-
-
-
-
-
-<p>
-
-<strong>
-
-Period:
-
-</strong>
-
-DD/MM/YYYY - DD/MM/YYYY
-
-</p>
-
-
-
-
-
-
-
-<h3>
-
-Income
-
-</h3>
-
-
-<p>
-
-Rental Income
-
-<span>
-
-$0.00
-
-</span>
-
-</p>
-
-
-
-
-
-
-<h3>
-
-Expenses
-
-</h3>
-
-
-<p>
-
-Maintenance
-
-<span>
-
-$0.00
-
-</span>
-
-</p>
-
-
-
-
-
-
-
-<h3>
-
-Net Profit
-
-</h3>
-
-
-<p class="profit">
-
-$0.00
-
-</p>
-
-
-
-
-
-
-
-<h3>
-
-ROI
-
-</h3>
-
-
-<p>
-
-0%
-
-</p>
-
-
-
-
-
-<hr>
-
-
-
-
-<p class="generated">
-
-Generated by OmniLedger
-
-</p>
-
-
-
-
-</div>
-
-
-
-
-
-<button class="download-button">
-
-Download PDF
-
-</button>
-
-
-
-</div>
-
-
-
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<!-- RECENT REPORTS -->
-
-
-<section class="recent-reports">
-
-
-<h3>
-
-Recent Reports
-
-</h3>
-
-
-
-
-<div class="report-history-card">
-
-
-<p>
-
-Financial Summary - July 2026
-
-</p>
-
-
-<button>
-
-View
-
-</button>
-
-
-</div>
-
-
-
-
-
-<div class="report-history-card">
-
-
-<p>
-
-ROI Analysis - 2026
-
-</p>
-
-
-<button>
-
-View
-
-</button>
-
-
-</div>
-
-
-
-
-</section>
-
-
-
-
-
-
-
-</main>
-
-
-
-
-
-
-
-</div>
-
-
-
 
 
 </body>
-
 
 </html>
