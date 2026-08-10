@@ -5,7 +5,8 @@ from flask import (
     redirect,
     url_for,
     session,
-    flash
+    flash,
+    jsonify
 )
 
 from datetime import datetime
@@ -164,7 +165,6 @@ def dashboard():
 
 
 # REPORTS
-
 @app.route("/reports")
 def reports():
 
@@ -177,8 +177,12 @@ def reports():
     return render_template(
         "reports.html",
         properties=properties,
-        reports=reports
+        reports=reports,
+        totalIncome=0,
+        totalExpense=0,
+        netProfit=0
     )
+
 
 # GENERATE REPORT
 
@@ -204,10 +208,7 @@ def generate_report():
     )
 
 
-    propertyID = request.form.get(
-        "propertyID",
-        "all"
-    )
+    propertyID = request.form.get("property")
 
 
     startDate = request.form.get(
@@ -411,6 +412,39 @@ def view_report(reportID):
         savedReport=report
     )
 
+#REPORT PREVIEW
+@app.route("/report_preview", methods=["POST"])
+def report_preview():
+
+    userID = session["userID"]
+
+    reportType = request.form.get("reportType")
+    propertyID = request.form.get("property")
+    startDate = request.form.get("startDate")
+    endDate = request.form.get("endDate")
+
+    report_data = create_financial_report(
+        userID,
+        reportType,
+        propertyID,
+        startDate,
+        endDate
+    )
+
+    return jsonify({
+        "totalIncome": report_data["totalIncome"],
+        "totalExpenses": report_data["totalExpenses"],
+        "netProfit": report_data["netProfit"],
+        "totalBills": report_data["totalBills"],
+        "gst": report_data["gst"],
+        "rentalROI": report_data["rentalROI"],
+        "totalROI": report_data["totalROI"],
+        "cashFlow": report_data["cashFlow"],
+        "balanceSheet": report_data["balanceSheet"],
+        "incomeBreakdown": report_data["incomeBreakdown"],
+        "expenseBreakdown": report_data["expenseBreakdown"],
+        "transactionCount": len(report_data["transactions"])
+    })
 
 # PROPERTY DETAILS
 

@@ -4,584 +4,571 @@
 
 <head>
 
-    <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
 
-    <title>Reports - OmniLedger</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+<title>Reports - OmniLedger</title>
 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/reports.css') }}"
-    >
+<link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/reports.css') }}"
+>
+
 
 </head>
 
-
 <body>
-
 
 <div class="dashboard-container">
 
+<!-- SIDEBAR -->
 
-    <!-- SIDEBAR -->
-
-    <aside class="sidebar">
+<aside class="sidebar">
 
 
-        <div class="user-profile">
+    <div class="user-profile">
 
-            <div class="profile-image">
-                👤
-            </div>
+        <div class="profile-image">
+            👤
+        </div>
 
-            <p class="hello-text">
-                Hello!
+        <p class="hello-text">
+            Hello!
+        </p>
+
+        <h3>
+            {{ session["name"] }}
+        </h3>
+
+    </div>
+
+
+    <div class="search-sidebar">
+
+        <input
+            type="text"
+            placeholder="Search"
+        >
+
+    </div>
+
+
+    <nav class="sidebar-menu">
+
+
+        <a href="{{ url_for('dashboard') }}">
+            Dashboard
+        </a>
+
+
+        <a href="#">
+            Statistics
+        </a>
+
+
+        <a href="#" class="active">
+            Reports
+        </a>
+
+
+        <a href="{{ url_for('dashboard') }}">
+            Properties
+        </a>
+
+
+        <a href="#">
+            AI Analytics
+        </a>
+
+
+        <hr>
+
+
+        <a href="#">
+            Settings
+        </a>
+
+
+        <a href="{{ url_for('logout') }}">
+            Log Out
+        </a>
+
+
+        <a href="#">
+            Help
+        </a>
+
+
+    </nav>
+
+</aside>
+
+
+<main class="main-content">
+
+    <header class="top-header">
+
+        <div class="logo-section">
+
+            <h2>
+                Financial Reports
+            </h2>
+
+            <p>
+                Create professional financial reports for properties and portfolios.
             </p>
 
-            <h3>
-                {{ session["name"] }}
-            </h3>
-
         </div>
 
-
-        <div class="search-sidebar">
-
-            <input
-                type="text"
-                placeholder="Search"
-            >
-
-        </div>
-
-
-        <nav class="sidebar-menu">
-
-
-            <a href="{{ url_for('dashboard') }}">
-                Dashboard
-            </a>
-
-
-            <a href="#">
-                Statistics
-            </a>
-
-
-            <a href="#" class="active">
-                Reports
-            </a>
-
-
-            <a href="{{ url_for('dashboard') }}">
-                Properties
-            </a>
-
-
-            <a href="#">
-                AI Analytics
-            </a>
-
-
-            <hr>
-
-
-            <a href="#">
-                Settings
-            </a>
-
-
-            <a href="{{ url_for('logout') }}">
-                Log Out
-            </a>
-
-
-            <a href="#">
-                Help
-            </a>
-
-
-        </nav>
-
-    </aside>
+    </header>
 
 
 
-    <!-- MAIN -->
+    <!-- REPORT LAYOUT -->
 
-    <main class="main-content">
+    <section class="report-layout">
 
 
-        <!-- PAGE HEADER -->
+        <!-- REPORT SETTINGS -->
 
-        <header class="top-header">
+        <form
+            class="report-card"
+            method="POST"
+            enctype="multipart/form-data"
+            action="{{ url_for('generate_report') }}"
+        >
 
-            <div class="logo-section">
 
-                <h2>
-                    Financial Reports
-                </h2>
+            <div class="card-heading">
+
+                <h3>
+                    Create Report
+                </h3>
 
                 <p>
-                    Create professional financial reports for properties and portfolios.
+                    Select the information you want included.
                 </p>
 
             </div>
 
-        </header>
+
+
+            <!-- PROPERTY -->
+
+            <div class="form-group">
+
+                <label for="property">
+                    Property / Portfolio
+                </label>
+
+                <select
+                    name="property"
+                    id="property"
+                >
+
+                    <option value="all">
+                        All Properties
+                    </option>
+
+
+                    {% for property in properties %}
+
+                    <option value="{{ property[0] }}">
+                        {{ property[2] }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+                <small>
+                    Select an individual property or generate a portfolio-wide report.
+                </small>
+
+            </div>
 
 
 
-        <!-- REPORT LAYOUT -->
+            <!-- REPORT TYPE -->
 
-        <section class="report-layout">
+            <div class="form-group">
+
+                <label for="reportType">
+                    Report Type
+                </label>
+
+                <select
+                    name="reportType"
+                    id="reportType"
+                >
+
+                    <option value="profit_loss">
+                        Profit & Loss Statement
+                    </option>
+
+                    <option value="cash_flow">
+                        Cash Flow Statement
+                    </option>
+
+                    <option value="rental_statement">
+                        Rental Property Statement
+                    </option>
+
+                    <option value="transactions">
+                        Expense & Transaction Report
+                    </option>
+
+                    <option value="tax_summary">
+                        Tax & GST Summary
+                    </option>
+
+                    <option value="property_performance">
+                        Property Performance Report
+                    </option>
+
+                    <option value="portfolio_summary">
+                        Portfolio Summary
+                    </option>
+
+                    <option value="balance_sheet">
+                        Balance Sheet
+                    </option>
+
+                </select>
+
+                <small>
+                    Choose the financial statement or analysis you need.
+                </small>
+
+            </div>
 
 
-            <!-- SETTINGS -->
 
-            <form
-                class="report-card"
-                method="POST"
-                enctype="multipart/form-data"
-                action="{{ url_for('generate_report') }}"
+            <!-- REPORTING PERIOD -->
+
+            <div class="form-section-title">
+
+                <h4>
+                    Reporting Period
+                </h4>
+
+            </div>
+
+
+            <div class="date-grid">
+
+
+                <div class="form-group">
+
+                    <label for="startDate">
+                        Start Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="startDate"
+                        id="startDate"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="endDate">
+                        End Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="endDate"
+                        id="endDate"
+                        required
+                    >
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- REPORT OPTIONS -->
+
+            <div class="form-section-title">
+
+                <h4>
+                    Report Options
+                </h4>
+
+            </div>
+
+
+            <div class="report-options">
+
+
+                <label class="checkbox-option">
+
+                    <input
+                        type="checkbox"
+                        name="includeTransactions"
+                        value="1"
+                        checked
+                    >
+
+                    <span>
+                        Include transaction details
+                    </span>
+
+                </label>
+
+
+                <label class="checkbox-option">
+
+                    <input
+                        type="checkbox"
+                        name="includeGST"
+                        value="1"
+                        checked
+                    >
+
+                    <span>
+                        Include GST information
+                    </span>
+
+                </label>
+
+
+                <label class="checkbox-option">
+
+                    <input
+                        type="checkbox"
+                        name="includeReceipts"
+                        value="1"
+                        checked
+                    >
+
+                    <span>
+                        Include receipt/document status
+                    </span>
+
+                </label>
+
+
+                <label class="checkbox-option">
+
+                    <input
+                        type="checkbox"
+                        name="includePropertyDetails"
+                        value="1"
+                        checked
+                    >
+
+                    <span>
+                        Include property information
+                    </span>
+
+                </label>
+
+
+            </div>
+
+
+
+            <!-- NOTES -->
+
+            <div class="form-group">
+
+                <label for="notes">
+                    Additional Notes
+                </label>
+
+                <textarea
+                    name="notes"
+                    id="notes"
+                    placeholder="Add notes for the accountant, financial reviewer or report..."
+                ></textarea>
+
+            </div>
+
+
+
+            <!-- SUPPORTING DOCUMENTS -->
+
+            <div class="form-section-title">
+
+                <h4>
+                    Supporting Documents
+                </h4>
+
+            </div>
+
+
+            <div class="upload-box">
+
+
+                <div class="upload-icon">
+                    📄
+                </div>
+
+
+                <p class="upload-title">
+                    Upload receipts or invoices
+                </p>
+
+
+                <p class="upload-description">
+                    Attach supporting financial documents to the report.
+                </p>
+
+
+                <input
+                    class="file-upload"
+                    type="file"
+                    name="receipt"
+                    accept=".pdf,.png,.jpg,.jpeg,.webp"
+                >
+
+
+                <small>
+                    PDF, PNG, JPG and JPEG files supported.
+                </small>
+
+
+            </div>
+
+
+
+            <!-- GENERATE BUTTON -->
+
+            <button
+                class="generate-button"
+                type="submit"
             >
+                Generate Financial Report
+            </button>
 
 
-                <div class="card-heading">
+        </form>
+
+
+
+        <!-- REPORT PREVIEW -->
+
+        <div class="report-preview-card">
+
+
+            <div class="preview-header">
+
+                <div>
 
                     <h3>
-                        Create Report
+                        Report Preview
                     </h3>
 
                     <p>
-                        Select the information you want included.
+                        Preview of the selected financial statement.
                     </p>
 
                 </div>
 
 
+                <span class="report-status">
+                    Preview
+                </span>
 
-                <!-- PROPERTY -->
+            </div>
 
-                <div class="form-group">
 
-                    <label for="property">
-                        Property / Portfolio
-                    </label>
 
-                    <select
-                        name="property"
-                        id="property"
-                    >
+            <!-- PREVIEW PAPER -->
 
-                        <option value="all">
-                            All Properties
-                        </option>
+            <div class="preview-paper" id="previewPaper">
 
+                <div class="report-document-header">
 
-                        {% for property in properties %}
+                    <h2>
+                        OMNILEDGER
+                    </h2>
 
-                        <option value="{{ property[0] }}">
-
-                            {{ property[2] }}
-
-                        </option>
-
-                        {% endfor %}
-
-                    </select>
-
-                    <small>
-                        Select an individual property or generate a portfolio-wide report.
-                    </small>
-
-                </div>
-
-
-
-                <!-- REPORT TYPE -->
-
-                <div class="form-group">
-
-                    <label for="reportType">
-                        Report Type
-                    </label>
-
-                    <select
-                        name="reportType"
-                        id="reportType"
-                    >
-
-                        <option value="profit_loss">
-                            Profit & Loss Statement
-                        </option>
-
-                        <option value="cash_flow">
-                            Cash Flow Statement
-                        </option>
-
-                        <option value="rental_statement">
-                            Rental Property Statement
-                        </option>
-
-                        <option value="transactions">
-                            Expense & Transaction Report
-                        </option>
-
-                        <option value="tax_summary">
-                            Tax & GST Summary
-                        </option>
-
-                        <option value="property_performance">
-                            Property Performance Report
-                        </option>
-
-                        <option value="portfolio_summary">
-                            Portfolio Summary
-                        </option>
-
-                        <option value="balance_sheet">
-                            Balance Sheet
-                        </option>
-
-                    </select>
-
-                    <small>
-                        Choose the financial statement or analysis you need.
-                    </small>
-
-                </div>
-
-
-
-                <!-- REPORTING PERIOD -->
-
-                <div class="form-section-title">
-
-                    <h4>
-                        Reporting Period
-                    </h4>
-
-                </div>
-
-
-                <div class="date-grid">
-
-
-                    <div class="form-group">
-
-                        <label for="startDate">
-                            Start Date
-                        </label>
-
-                        <input
-                            type="date"
-                            name="startDate"
-                            id="startDate"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="endDate">
-                            End Date
-                        </label>
-
-                        <input
-                            type="date"
-                            name="endDate"
-                            id="endDate"
-                            required
-                        >
-
-                    </div>
-
-
-                </div>
-
-
-
-                <!-- REPORT OPTIONS -->
-
-                <div class="form-section-title">
-
-                    <h4>
-                        Report Options
-                    </h4>
-
-                </div>
-
-
-                <div class="report-options">
-
-
-                    <label class="checkbox-option">
-
-                        <input
-                            type="checkbox"
-                            name="includeTransactions"
-                            value="1"
-                            checked
-                        >
-
-                        <span>
-                            Include transaction details
-                        </span>
-
-                    </label>
-
-
-                    <label class="checkbox-option">
-
-                        <input
-                            type="checkbox"
-                            name="includeGST"
-                            value="1"
-                            checked
-                        >
-
-                        <span>
-                            Include GST information
-                        </span>
-
-                    </label>
-
-
-                    <label class="checkbox-option">
-
-                        <input
-                            type="checkbox"
-                            name="includeReceipts"
-                            value="1"
-                            checked
-                        >
-
-                        <span>
-                            Include receipt/document status
-                        </span>
-
-                    </label>
-
-
-                    <label class="checkbox-option">
-
-                        <input
-                            type="checkbox"
-                            name="includePropertyDetails"
-                            value="1"
-                            checked
-                        >
-
-                        <span>
-                            Include property information
-                        </span>
-
-                    </label>
-
-
-                </div>
-
-
-
-                <!-- NOTES -->
-
-                <div class="form-group">
-
-                    <label for="notes">
-                        Additional Notes
-                    </label>
-
-                    <textarea
-                        name="notes"
-                        id="notes"
-                        placeholder="Add notes for the accountant, financial reviewer or report..."
-                    ></textarea>
-
-                </div>
-
-
-
-                <!-- DOCUMENT UPLOAD -->
-
-                <div class="form-section-title">
-
-                    <h4>
-                        Supporting Documents
-                    </h4>
-
-                </div>
-
-
-                <div class="upload-box">
-
-
-                    <div class="upload-icon">
-                        📄
-                    </div>
-
-
-                    <p class="upload-title">
-                        Upload receipts or invoices
+                    <p>
+                        Financial Management System
                     </p>
 
-
-                    <p class="upload-description">
-                        Attach supporting financial documents to the report.
-                    </p>
-
-
-                    <input
-                        class="file-upload"
-                        type="file"
-                        name="receipt"
-                        accept=".pdf,.png,.jpg,.jpeg,.webp"
-                    >
-
-
-                    <small>
-                        PDF, PNG, JPG and JPEG files supported.
-                    </small>
-
+                    <h4 id="previewReportTitle">
+                        Profit & Loss Statement
+                    </h4>
 
                 </div>
 
 
-
-                <!-- GENERATE -->
-
-                <button
-                    class="generate-button"
-                    type="submit"
-                >
-
-                    Generate Financial Report
-
-                </button>
-
-
-            </form>
+                <hr>
 
 
 
-            <!-- PREVIEW -->
+                <!-- REPORT INFORMATION -->
 
-            <div class="report-preview-card">
+                <div class="report-meta">
 
-
-                <div class="preview-header">
 
                     <div>
 
-                        <h3>
-                            Report Preview
-                        </h3>
+                        <strong>
+                            Property
+                        </strong>
 
-                        <p>
-                            Preview of the generated financial statement.
-                        </p>
+                        <span id="previewProperty">
+                            All Properties
+                        </span>
 
                     </div>
 
 
-                    <span class="report-status">
-                        Preview
-                    </span>
+                    <div>
+
+                        <strong>
+                            Reporting Period
+                        </strong>
+
+                        <span id="previewPeriod">
+                            DD/MM/YYYY - DD/MM/YYYY
+                        </span>
+
+                    </div>
+
+
+                    <div>
+
+                        <strong>
+                            Report ID
+                        </strong>
+
+                        <span>
+                            Pending
+                        </span>
+
+                    </div>
+
 
                 </div>
 
 
-
-                <!-- PAPER -->
-
-                <div class="preview-paper">
+                <div id="reportPreviewContent">
 
 
-                    <!-- REPORT HEADER -->
-
-                    <div class="report-document-header">
-
-                        <h2>
-                            OMNILEDGER
-                        </h2>
-
-                        <p>
-                            Financial Management System
-                        </p>
-
-                        <h4>
-                            Profit & Loss Statement
-                        </h4>
-
-                    </div>
-
-
-                    <hr>
-
-
-                    <!-- REPORT INFORMATION -->
-
-                    <div class="report-meta">
-
-
-                        <div>
-
-                            <strong>
-                                Property
-                            </strong>
-
-                            <span>
-                                All Properties
-                            </span>
-
-                        </div>
-
-
-                        <div>
-
-                            <strong>
-                                Reporting Period
-                            </strong>
-
-                            <span>
-                                {{ startDate if startDate else "DD/MM/YYYY" }}
-                                -
-                                {{ endDate if endDate else "DD/MM/YYYY" }}
-                            </span>
-
-                        </div>
-
-
-                        <div>
-
-                            <strong>
-                                Report ID
-                            </strong>
-
-                            <span>
-                                Pending
-                            </span>
-
-                        </div>
-
-
-                    </div>
-
-
-
-                    <!-- PROFIT -->
+                    <!-- DEFAULT PREVIEW -->
 
                     <section class="financial-section">
 
@@ -598,7 +585,7 @@
                             </span>
 
                             <strong>
-                                ${{ totalIncome if totalIncome else "0.00" }}
+                                ${{ "%.2f"|format(totalIncome|default(0, true)) }}
                             </strong>
 
                         </div>
@@ -624,7 +611,7 @@
                             </span>
 
                             <strong>
-                                ${{ totalIncome if totalIncome else "0.00" }}
+                                ${{ "%.2f"|format(totalIncome|default(0, true)) }}
                             </strong>
 
                         </div>
@@ -701,7 +688,7 @@
                             </span>
 
                             <strong>
-                                ${{ totalExpense if totalExpense else "0.00" }}
+                                ${{ "%.2f"|format(totalExpense|default(0, true)) }}
                             </strong>
 
                         </div>
@@ -714,7 +701,7 @@
                             </span>
 
                             <strong>
-                                ${{ totalExpense if totalExpense else "0.00" }}
+                                ${{ "%.2f"|format(totalExpense|default(0, true)) }}
                             </strong>
 
                         </div>
@@ -724,8 +711,6 @@
 
 
 
-                    <!-- NET PROFIT -->
-
                     <section class="net-profit-section">
 
                         <span>
@@ -733,14 +718,12 @@
                         </span>
 
                         <strong>
-                            ${{ netProfit if netProfit else "0.00" }}
+                            ${{ "%.2f"|format(netProfit|default(0, true)) }}
                         </strong>
 
                     </section>
 
 
-
-                    <!-- GST -->
 
                     <section class="financial-section">
 
@@ -792,203 +775,971 @@
                     </section>
 
 
+                </div>
 
-                    <!-- DOCUMENTATION -->
-
-                    <section class="financial-section">
-
-
-                        <h5>
-                            Documentation Status
-                        </h5>
+                <hr>
 
 
-                        <div class="financial-row">
+                <div class="report-footer">
 
-                            <span>
-                                Transactions recorded
-                            </span>
+                    <p>
+                        Generated by OmniLedger
+                    </p>
 
-                            <strong>
-                                0
-                            </strong>
-
-                        </div>
-
-
-                        <div class="financial-row">
-
-                            <span>
-                                Receipts attached
-                            </span>
-
-                            <strong>
-                                0
-                            </strong>
-
-                        </div>
-
-
-                        <div class="financial-row">
-
-                            <span>
-                                Missing documentation
-                            </span>
-
-                            <strong>
-                                0
-                            </strong>
-
-                        </div>
-
-
-                    </section>
-
-
-
-                    <!-- FOOTER -->
-
-                    <hr>
-
-
-                    <div class="report-footer">
-
-                        <p>
-                            Generated by OmniLedger
-                        </p>
-
-                        <p>
-                            For financial management and review purposes
-                        </p>
-
-                    </div>
-
+                    <p>
+                        For financial management and review purposes
+                    </p>
 
                 </div>
 
 
+            </div>
 
-                <!-- DOWNLOAD -->
+
+
+            <!-- DOWNLOAD -->
+
+            <button
+                class="download-button"
+                type="button"
+            >
+                Download PDF
+            </button>
+
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- RECENT REPORTS -->
+
+    <section class="recent-reports">
+
+
+        <div class="recent-header">
+
+            <div>
+
+                <h3>
+                    Recent Reports
+                </h3>
+
+                <p>
+                    Previously generated financial reports.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if reports %}
+
+
+            {% for report in reports %}
+
+
+            <div class="report-history-card">
+
+
+                <div class="report-history-info">
+
+                    <h4>
+                        {{ report[2] }}
+                    </h4>
+
+                    <p>
+                        {{ report[3] }}
+                        -
+                        {{ report[4] }}
+                    </p>
+
+                </div>
+
+
+                <div class="report-history-values">
+
+                    <span>
+                        Net Profit
+                    </span>
+
+                    <strong>
+                        ${{ "%.2f"|format(report[8] or 0) }}
+                    </strong>
+
+                </div>
+
 
                 <button
-                    class="download-button"
                     type="button"
+                    class="view-report-button"
                 >
-
-                    Download PDF
-
+                    View
                 </button>
 
 
             </div>
 
 
-        </section>
+            {% endfor %}
 
 
-
-        <!-- RECENT REPORTS LIST -->
-
-        <section class="recent-reports">
+        {% else %}
 
 
-            <div class="recent-header">
+            <div class="empty-reports">
 
-                <div>
+                <h4>
+                    No reports generated yet
+                </h4>
 
-                    <h3>
-                        Recent Reports
-                    </h3>
-
-                    <p>
-                        Previously generated financial reports.
-                    </p>
-
-                </div>
+                <p>
+                    Your generated financial reports will appear here.
+                </p>
 
             </div>
 
 
-            {% if reports %}
+        {% endif %}
 
 
-                {% for report in reports %}
-
-                <div class="report-history-card">
+    </section>
 
 
-                    <div class="report-history-info">
-
-                        <h4>
-                            {{ report[2] }}
-                        </h4>
-
-                        <p>
-                            {{ report[3] }}
-                            -
-                            {{ report[4] }}
-                        </p>
-
-                    </div>
-
-
-                    <div class="report-history-values">
-
-                        <span>
-                            Net Profit
-                        </span>
-
-                        <strong>
-                            ${{ "%.2f"|format(report[8] or 0) }}
-                        </strong>
-
-                    </div>
-
-
-                    <button
-                        type="button"
-                        class="view-report-button"
-                    >
-
-                        View
-
-                    </button>
-
-
-                </div>
-
-                {% endfor %}
-
-
-            {% else %}
-
-                <div class="empty-reports">
-
-                    <div>
-                        📄
-                    </div>
-
-                    <h4>
-                        No reports generated yet
-                    </h4>
-
-                    <p>
-                        Your generated financial reports will appear here.
-                    </p>
-
-                </div>
-
-            {% endif %}
-
-
-        </section>
-
-
-    </main>
-
+</main>
+```
 
 </div>
 
+<!-- REPORT PREVIEW JAVASCRIPT -->
+
+<script>
+
+
+    /* FORM ELEMENTS */
+
+    const reportTypeSelect =
+        document.getElementById("reportType");
+
+    const propertySelect =
+        document.getElementById("property");
+
+    const startDateInput =
+        document.getElementById("startDate");
+
+    const endDateInput =
+        document.getElementById("endDate");
+
+
+
+    /* PREVIEW ELEMENTS */
+
+    const previewTitle =
+        document.getElementById("previewReportTitle");
+
+    const previewProperty =
+        document.getElementById("previewProperty");
+
+    const previewPeriod =
+        document.getElementById("previewPeriod");
+
+    const reportPreviewContent =
+        document.getElementById("reportPreviewContent");
+
+
+
+
+    let totalIncome = Number(
+        "{{ totalIncome|default(0, true) }}"
+    );
+
+    let totalExpense = Number(
+        "{{ totalExpense|default(0, true) }}"
+    );
+
+    let netProfit = Number(
+        "{{ netProfit|default(0, true) }}"
+    );
+
+    let totalBills = 0;
+    let totalGST = 0;
+    let rentalROI = 0;
+    let totalROI = 0;
+    let transactionCount = 0;
+
+
+
+
+    function formatMoney(value) {
+
+        return "$" + Number(value || 0).toFixed(2);
+
+    }
+
+
+    function formatDate(dateValue) {
+
+        if (!dateValue) {
+
+            return "DD/MM/YYYY";
+
+        }
+
+
+        const parts =
+            dateValue.split("-");
+
+
+        if (parts.length !== 3) {
+
+            return dateValue;
+
+        }
+
+
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+
+    }
+
+
+
+
+    /* UPDATE PROPERTY */
+
+    function updatePreviewInformation() {
+
+
+        const selectedProperty =
+            propertySelect
+                .options[propertySelect.selectedIndex]
+                .text
+                .trim();
+
+
+        previewProperty.textContent =
+            selectedProperty || "All Properties";
+
+
+        const startDate =
+            formatDate(startDateInput.value);
+
+        const endDate =
+            formatDate(endDateInput.value);
+
+
+        previewPeriod.textContent =
+            `${startDate} - ${endDate}`;
+
+    }
+
+    async function loadReportData() {
+
+        const formData = new FormData();
+
+        formData.append(
+            "reportType",
+            reportTypeSelect.value
+        );
+
+        formData.append(
+            "property",
+            propertySelect.value
+        );
+
+        formData.append(
+            "startDate",
+            startDateInput.value
+        );
+
+        formData.append(
+            "endDate",
+            endDateInput.value
+        );
+
+
+        try {
+
+            const response = await fetch(
+                "{{ url_for('report_preview') }}",
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Could not load report data."
+                );
+
+            }
+
+
+            const data = await response.json();
+
+
+            totalIncome = Number(
+                data.totalIncome || 0
+            );
+
+            totalExpense = Number(
+                data.totalExpenses || 0
+            );
+
+            netProfit = Number(
+                data.netProfit || 0
+            );
+
+            totalBills = Number(
+                data.totalBills || 0
+            );
+
+            totalGST = Number(
+                data.gst || 0
+            );
+
+            rentalROI = Number(
+                data.rentalROI || 0
+            );
+
+            totalROI = Number(
+                data.totalROI || 0
+            );
+
+            transactionCount = Number(
+                data.transactionCount || 0
+            );
+
+
+            updateReportPreview();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Report preview error:",
+            error
+        );
+
+        }
+    }
+
+
+
+    /* REPORT TEMPLATES */
+
+    const reportTemplates = {
+
+
+        /* PROFIT & LOSS */
+
+        profit_loss: {
+
+            title: "Profit & Loss Statement",
+
+            content: `
+
+                <section class="financial-section">
+
+                    <h5>Income</h5>
+
+                    <div class="financial-row">
+                        <span>Rental Income</span>
+                        <strong>${formatMoney(totalIncome)}</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Other Income</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-total">
+                        <span>Total Income</span>
+                        <strong>${formatMoney(totalIncome)}</strong>
+                    </div>
+
+                </section>
+
+
+                <section class="financial-section">
+
+                    <h5>Expenses</h5>
+
+                    <div class="financial-row">
+                        <span>Property Management</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Maintenance</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Insurance</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Mortgage / Interest</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Other Expenses</span>
+                        <strong>${formatMoney(totalExpense)}</strong>
+                    </div>
+
+                    <div class="financial-total">
+                        <span>Total Expenses</span>
+                        <strong>${formatMoney(totalExpense)}</strong>
+                    </div>
+
+                </section>
+
+
+                <section class="net-profit-section">
+
+                    <span>Net Profit / (Loss)</span>
+
+                    <strong>${formatMoney(netProfit)}</strong>
+
+                </section>
+
+
+                <section class="financial-section">
+
+                    <h5>GST Summary</h5>
+
+                    <div class="financial-row">
+                        <span>GST on recorded income</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>GST on recorded expenses</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-total">
+                        <span>Net GST Position</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                </section>
+
+            `
+
+        },
+
+
+        /* CASH FLOW */
+
+        cash_flow: {
+
+            title: "Cash Flow Statement",
+
+            content: `
+
+                <section class="financial-section">
+
+                    <h5>Cash Inflows</h5>
+
+                    <div class="financial-row">
+                        <span>Rental Income</span>
+                        <strong>${formatMoney(totalIncome)}</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Other Cash Received</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-total">
+                        <span>Total Cash Inflows</span>
+                        <strong>${formatMoney(totalIncome)}</strong>
+                    </div>
+
+                </section>
+
+
+                <section class="financial-section">
+
+                    <h5>Cash Outflows</h5>
+
+                    <div class="financial-row">
+                        <span>Property Expenses</span>
+                        <strong>${formatMoney(totalExpense)}</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Other Cash Payments</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-total">
+                        <span>Total Cash Outflows</span>
+                        <strong>${formatMoney(totalExpense)}</strong>
+                    </div>
+
+                </section>
+
+
+                <section class="net-profit-section">
+
+                    <span>Net Cash Flow</span>
+
+                    <strong>${formatMoney(netProfit)}</strong>
+
+                </section>
+
+            `
+
+        },
+
+
+        /* RENTAL PROPERTY */
+
+        rental_statement: {
+
+            title: "Rental Property Statement",
+
+            content: `
+
+                <section class="financial-section">
+
+                    <h5>Rental Income</h5>
+
+                    <div class="financial-row">
+                        <span>Rental Income</span>
+                        <strong>${formatMoney(totalIncome)}</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Other Property Income</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-total">
+                        <span>Total Rental Income</span>
+                        <strong>${formatMoney(totalIncome)}</strong>
+                    </div>
+
+                </section>
+
+
+                <section class="financial-section">
+
+                    <h5>Property Expenses</h5>
+
+                    <div class="financial-row">
+                        <span>Property Management</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Maintenance</span>
+                        <strong>${formatMoney(totalExpense)}</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Insurance</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-total">
+                        <span>Total Property Expenses</span>
+                        <strong>${formatMoney(totalExpense)}</strong>
+                    </div>
+
+                </section>
+
+
+                <section class="net-profit-section">
+
+                    <span>Net Rental Result</span>
+
+                    <strong>${formatMoney(netProfit)}</strong>
+
+                </section>
+
+            `
+
+        },
+
+
+        /* TRANSACTIONS */
+
+        transactions: {
+
+            title: "Expense & Transaction Report",
+
+            content: `
+
+                <section class="financial-section">
+
+                    <h5>Transaction Summary</h5>
+
+                    <div class="financial-row">
+                        <span>Total Income</span>
+                        <strong>${formatMoney(totalIncome)}</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Total Expenses</span>
+                        <strong>${formatMoney(totalExpense)}</strong>
+                    </div>
+
+                    <div class="financial-total">
+                        <span>Net Transaction Position</span>
+                        <strong>${formatMoney(netProfit)}</strong>
+                    </div>
+
+                </section>
+
+
+                <section class="financial-section">
+
+                    <h5>Transaction Details</h5>
+
+                    <div class="financial-row">
+                        <span>Recorded Transactions</span>
+                        <strong>0</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Income Transactions</span>
+                        <strong>0</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Expense Transactions</span>
+                        <strong>0</strong>
+                    </div>
+
+                </section>
+
+            `
+
+        },
+
+
+        /* TAX & GST */
+
+        tax_summary: {
+
+            title: "Tax & GST Summary",
+
+            content: `
+
+                <section class="financial-section">
+
+                    <h5>GST Summary</h5>
+
+                    <div class="financial-row">
+                        <span>GST on Recorded Income</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>GST on Recorded Expenses</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-total">
+                        <span>Net GST Position</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                </section>
+
+
+                <section class="financial-section">
+
+                    <h5>Taxable Activity</h5>
+
+                    <div class="financial-row">
+                        <span>Total Income</span>
+                        <strong>${formatMoney(totalIncome)}</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Total Expenses</span>
+                        <strong>${formatMoney(totalExpense)}</strong>
+                    </div>
+
+                    <div class="financial-total">
+                        <span>Net Financial Position</span>
+                        <strong>${formatMoney(netProfit)}</strong>
+                    </div>
+
+                </section>
+
+
+                <section class="financial-section">
+
+                    <h5>Documentation Status</h5>
+
+                    <div class="financial-row">
+                        <span>Transactions Recorded</span>
+                        <strong>0</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Receipts Attached</span>
+                        <strong>0</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Missing Documentation</span>
+                        <strong>0</strong>
+                    </div>
+
+                </section>
+
+            `
+
+        },
+
+
+        /* PROPERTY PERFORMANCE */
+
+        property_performance: {
+
+            title: "Property Performance Report",
+
+            content: `
+
+                <section class="financial-section">
+
+                    <h5>Property Financial Performance</h5>
+
+                    <div class="financial-row">
+                        <span>Rental Income</span>
+                        <strong>${formatMoney(totalIncome)}</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Property Expenses</span>
+                        <strong>${formatMoney(totalExpense)}</strong>
+                    </div>
+
+                    <div class="financial-total">
+                        <span>Net Property Income</span>
+                        <strong>${formatMoney(netProfit)}</strong>
+                    </div>
+
+                </section>
+
+
+                <section class="financial-section">
+
+                    <h5>Investment Performance</h5>
+
+                    <div class="financial-row">
+                        <span>Property Value</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Purchase Price</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Rental ROI</span>
+                        <strong>0.00%</strong>
+                    </div>
+
+                    <div class="financial-total">
+                        <span>Total ROI</span>
+                        <strong>0.00%</strong>
+                    </div>
+
+                </section>
+
+            `
+
+        },
+
+
+        /* PORTFOLIO SUMMARY */
+
+        portfolio_summary: {
+
+            title: "Portfolio Summary",
+
+            content: `
+
+                <section class="financial-section">
+
+                    <h5>Portfolio Financial Overview</h5>
+
+                    <div class="financial-row">
+                        <span>Total Portfolio Income</span>
+                        <strong>${formatMoney(totalIncome)}</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Total Portfolio Expenses</span>
+                        <strong>${formatMoney(totalExpense)}</strong>
+                    </div>
+
+                    <div class="financial-total">
+                        <span>Portfolio Net Profit</span>
+                        <strong>${formatMoney(netProfit)}</strong>
+                    </div>
+
+                </section>
+
+
+                <section class="financial-section">
+
+                    <h5>Portfolio Information</h5>
+
+                    <div class="financial-row">
+                        <span>Properties Included</span>
+                        <strong>0</strong>
+                    </div>
+
+                    <div class="financial-row">
+                        <span>Transactions Recorded</span>
+                        <strong>0</strong>
+                    </div>
+
+                </section>
+
+            `
+
+        },
+
+
+        /* BALANCE SHEET */
+
+        balance_sheet: {
+
+            title: "Balance Sheet",
+
+            content: `
+
+                <section class="financial-section">
+
+                    <h5>Assets</h5>
+
+                    <div class="financial-row">
+                        <span>Property Assets</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-total">
+                        <span>Total Assets</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                </section>
+
+
+                <section class="financial-section">
+
+                    <h5>Liabilities</h5>
+
+                    <div class="financial-row">
+                        <span>Outstanding Liabilities</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                    <div class="financial-total">
+                        <span>Total Liabilities</span>
+                        <strong>$0.00</strong>
+                    </div>
+
+                </section>
+
+
+                <section class="net-profit-section">
+
+                    <span>Net Assets / Equity</span>
+
+                    <strong>$0.00</strong>
+
+                </section>
+
+            `
+
+        }
+
+
+    };
+
+
+
+    /* UPDATE REPORT PREVIEW */
+
+    function updateReportPreview() {
+
+
+        const selectedType =
+            reportTypeSelect.value;
+
+
+        const report =
+            reportTemplates[selectedType];
+
+
+        if (!report) {
+
+            return;
+
+        }
+
+
+        previewTitle.textContent =
+            report.title;
+
+
+        reportPreviewContent.innerHTML =
+            report.content;
+
+
+        updatePreviewInformation();
+
+    }
+
+
+    reportTypeSelect.addEventListener(
+        "change",
+        loadReportData
+    );
+
+
+    propertySelect.addEventListener(
+        "change",
+        loadReportData
+    );
+
+
+    startDateInput.addEventListener(
+        "change",
+        loadReportData
+    );
+
+
+    endDateInput.addEventListener(
+        "change",
+        loadReportData
+    );
+
+
+    updateReportPreview();
+
+
+</script>
 
 </body>
 

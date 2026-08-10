@@ -2,9 +2,6 @@ def calculate_total_income(transactions):
 
     total_income = 0
 
-    # TRANSACTION TYPE = INDEX 2
-    # AMOUNT = INDEX 4
-
     for transaction in transactions:
 
         if transaction[2] == "Income":
@@ -17,9 +14,6 @@ def calculate_total_income(transactions):
 def calculate_total_expenses(transactions):
 
     total_expenses = 0
-
-    # TRANSACTION TYPE = INDEX 2
-    # AMOUNT = INDEX 4
 
     for transaction in transactions:
 
@@ -225,10 +219,6 @@ def calculate_total_bills(transactions):
         transaction_type = transaction[2]
         category = transaction[3]
         amount = transaction[4]
-
-
-        # Bills are currently identified using
-        # the "Bills" transaction category.
 
         if (
             transaction_type == "Expense"

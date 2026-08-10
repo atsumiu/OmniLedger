@@ -5,9 +5,10 @@ from database.models import (
 
 from utils.calculations import (
     calculate_rental_roi,
-    calculate_total_roi
+    calculate_total_roi,
+    calculate_cash_flow,
+    calculate_total_bills
 )
-
 
 def create_financial_report(
     userID,
@@ -28,7 +29,7 @@ def create_financial_report(
 
     total_income = 0
     total_expenses = 0
-    total_bills = 0
+    total_bills = calculate_total_bills(transactions)
     total_gst = 0
 
     income_breakdown = {}
@@ -81,9 +82,6 @@ def create_financial_report(
     total_roi = 0
 
 
-    # If a specific property was selected,
-    # calculate its ROI.
-
     if propertyID and propertyID != "all":
 
         from database.models import get_property
@@ -95,21 +93,6 @@ def create_financial_report(
 
         if property_information:
 
-            # Properties table indexes:
-            # 0  propertyID
-            # 1  userID
-            # 2  propertyAddress
-            # 3  propertyType
-            # 4  ownershipData
-            # 5  tenantName
-            # 6  leaseStatus
-            # 7  leaseStart
-            # 8  leaseEnd
-            # 9  weeklyRent
-            # 10 bankAccount
-            # 11 propertyValue
-            # 12 purchasePrice
-            # 13 notes
 
             weekly_rent = property_information[9] or 0
             property_value = property_information[11] or 0
@@ -129,14 +112,11 @@ def create_financial_report(
             )
 
 
-    cash_flow = {
-        "cash_inflow": total_income,
-        "cash_outflow": total_expenses,
-        "net_cash_flow": net_profit
-    }
+    cash_flow = calculate_cash_flow(transactions)
 
 
     # BALANCE SHEET
+
     assets = 0
     liabilities = 0
     equity = 0
@@ -148,23 +128,18 @@ def create_financial_report(
 
         assets = property_value
 
-        # Simplified assumption for current schema.
-        #
-        # We do NOT have a dedicated liabilities table yet,
-        # so purchase price is used as the initial basis.
-
-        liabilities = max(
-            purchase_price - equity,
-            0
-        )
+        liabilities = purchase_price
 
         equity = assets - liabilities
 
-
     balance_sheet = {
-        "assets": assets,
-        "liabilities": liabilities,
-        "equity": equity
+
+        "assets": round(assets, 2),
+
+        "liabilities": round(liabilities, 2),
+
+        "equity": round(equity, 2)
+
     }
 
 
