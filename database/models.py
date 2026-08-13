@@ -410,8 +410,6 @@ def get_report_transactions(
     parameters = [userID]
 
 
-    # FILTER BY PROPERTY
-
     if propertyID and propertyID != "all":
 
         query += """
@@ -420,8 +418,6 @@ def get_report_transactions(
 
         parameters.append(propertyID)
 
-
-    # FILTER BY START DATE
 
     if startDate:
 
@@ -436,8 +432,6 @@ def get_report_transactions(
         parameters.append(startDate)
 
 
-    # FILTER BY END DATE
-
     if endDate:
 
         query += """
@@ -451,12 +445,14 @@ def get_report_transactions(
         parameters.append(endDate)
 
 
-    # SORT BY DATE
-
     query += """
-        ORDER BY t.date ASC
+        ORDER BY
+            date(
+                substr(t.date, 7, 4) || '-' ||
+                substr(t.date, 4, 2) || '-' ||
+                substr(t.date, 1, 2)
+            ) ASC
     """
-
 
     cursor.execute(
         query,
@@ -468,6 +464,7 @@ def get_report_transactions(
     conn.close()
 
     return transactions
+
 
 # PROPERTY
 

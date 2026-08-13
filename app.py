@@ -6,7 +6,8 @@ from flask import (
     url_for,
     session,
     flash,
-    jsonify
+    jsonify,
+    send_file
 )
 
 from datetime import datetime
@@ -14,6 +15,8 @@ from datetime import datetime
 import os
 
 from werkzeug.utils import secure_filename
+
+from utils.pdf_generator import generate_report_pdf
 
 
 from utils.report_generator import (
@@ -165,24 +168,33 @@ def dashboard():
 
 
 # REPORTS
+
 @app.route("/reports")
 def reports():
 
+    if "userID" not in session:
+        return redirect(
+            url_for("login")
+        )
+
     userID = session["userID"]
 
-    properties = get_properties(userID)
+    properties = get_properties(
+        userID
+    )
 
-    reports = get_reports(userID)
+    reports = get_reports(
+        userID
+    )
 
     return render_template(
         "reports.html",
         properties=properties,
         reports=reports,
         totalIncome=0,
-        totalExpense=0,
+        totalExpenses=0,
         netProfit=0
     )
-
 
 # GENERATE REPORT
 
@@ -202,13 +214,18 @@ def generate_report():
     userID = session["userID"]
 
 
+    # GET FORM VALUES
+
     reportType = request.form.get(
         "reportType",
-        "Financial Summary"
+        "profit_loss"
     )
 
 
-    propertyID = request.form.get("property")
+    propertyID = request.form.get(
+        "property",
+        "all"
+    )
 
 
     startDate = request.form.get(
@@ -262,7 +279,7 @@ def generate_report():
             )
 
 
-    # VALIDATE PROP
+    # VALIDATE PROPERTY
 
     if propertyID != "all":
 
@@ -284,7 +301,7 @@ def generate_report():
             )
 
 
-    # GENERATE & SAVE REPORT
+    # GENERATE AND SAVE REPORT
 
     report_data = generate_and_save_report(
 
@@ -310,7 +327,7 @@ def generate_report():
     )
 
 
-    # SHOW REPORT
+    # SHOW GENERATED REPORT
 
     return render_template(
 
@@ -344,9 +361,7 @@ def generate_report():
 
         transactions=report_data["transactions"],
 
-        propertyInformation=report_data[
-            "propertyInformation"
-        ],
+        propertyInformation=report_data["propertyInformation"],
 
         propertyID=propertyID,
 
@@ -355,7 +370,9 @@ def generate_report():
         startDate=startDate,
 
         endDate=endDate
+
     )
+
 
 
 # VIEW REPORT
@@ -445,6 +462,65 @@ def report_preview():
         "expenseBreakdown": report_data["expenseBreakdown"],
         "transactionCount": len(report_data["transactions"])
     })
+
+
+# DOWNLOAD REPORT PDF
+
+@app.route("/report/<int:reportID>/download")
+def download_report(reportID):
+
+    if "userID" not in session:
+
+        return redirect(
+            url_for("login")
+        )
+
+    userID = session["userID"]
+
+    report = get_report(
+        reportID,
+        userID
+    )
+
+    if report is None:
+
+        flash(
+            "Report could not be found.",
+            "error"
+        )
+
+        return redirect(
+            url_for("reports")
+        )
+
+    report_data = create_financial_report(
+        userID,
+        report[2],
+        "all",
+        report[3],
+        report[4]
+    )
+
+    report_data["reportID"] = report[0]
+
+    pdf = generate_report_pdf(
+        report_data
+    )
+
+    filename = (
+        f"OmniLedger_{report[2]}_"
+        f"{report[0]}.pdf"
+    )
+
+    return send_file(
+        pdf,
+        as_attachment=True,
+        download_name=filename,
+        mimetype="application/pdf"
+    )
+
+
+
 
 # PROPERTY DETAILS
 

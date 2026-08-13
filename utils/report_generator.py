@@ -25,6 +25,8 @@ def create_financial_report(
         startDate,
         endDate
     )
+    
+    print("REPORT TRANSACTIONS:", transactions)
 
 
     total_income = 0

@@ -799,12 +799,16 @@
 
             <!-- DOWNLOAD -->
 
-            <button
+            {% if report and report["reportID"] %}
+
+            <a
                 class="download-button"
-                type="button"
+                href="{{ url_for('download_report', reportID=report['reportID']) }}"
             >
                 Download PDF
-            </button>
+            </a>
+
+            {% endif %}
 
 
         </div>
