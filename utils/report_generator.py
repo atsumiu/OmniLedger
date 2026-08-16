@@ -25,8 +25,6 @@ def create_financial_report(
         startDate,
         endDate
     )
-    
-    print("REPORT TRANSACTIONS:", transactions)
 
 
     total_income = 0
@@ -225,6 +223,7 @@ def generate_and_save_report(
         totalBills=report_data["totalBills"],
         netProfit=report_data["netProfit"],
         roi=report_data["totalROI"],
+        propertyID=propertyID,
         predictedInsights=""
     )
 

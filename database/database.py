@@ -152,6 +152,16 @@ CREATE TABLE IF NOT EXISTS Reports(
 )
 """)
 
+# Ensure older databases gain the `propertyID` column on Reports
+try:
+    cursor.execute("PRAGMA table_info(Reports)")
+    cols = [r[1] for r in cursor.fetchall()]
+    if 'propertyID' not in cols:
+        cursor.execute("ALTER TABLE Reports ADD COLUMN propertyID TEXT")
+except Exception:
+    # If anything goes wrong, continue — table may not exist yet or ALTER not needed
+    pass
+
 
 # MARKET DATA
 

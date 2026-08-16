@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Statistics - OmniLedger</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+    <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/statistics.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="dashboard-container">
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="user-profile">
+
+            <div class="profile-image">
+                👤
+            </div>
+
+            <p class="hello-text">
+                Hello!
+            </p>
+
+            <h3>
+                {{ session["name"] }}
+            </h3>
+
+        </div>
+
+
+        <div class="search-sidebar">
+
+            <input type="text" placeholder="Search">
+
+        </div>
+
+
+        <nav class="sidebar-menu">
+
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('statistics') }}" class="active">
+                Statistics
+            </a>
+
+            <a href="{{ url_for('reports') }}">
+                Reports
+            </a>
+
+            <a href="{{ url_for('add_property') }}">
+                Properties
+            </a>
+
+            <a href="{{ url_for('ai_analytics') }}">
+                AI Analytics
+            </a>
+
+            <hr>
+
+            <a href="#">
+                Settings
+            </a>
+
+            <a href="{{ url_for('logout') }}">
+                Log Out
+            </a>
+
+            <a href="{{ url_for('help_page') }}" class="active">
+                Help
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="main-content">
+
+
+        <header class="top-header">
+
+            <div class="logo-section">
+
+                <h2>
+                    OmniLedger
+                </h2>
+
+                <p>
+                    Statistics & Analytics
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <!-- FILTERS -->
+
+        <section class="report-card" style="margin:16px 24px;">
+
+            <form id="filterForm" method="get">
+
+                <div class="date-grid" style="align-items:center;">
+
+
+                    <!-- PROPERTY -->
+
+                    <div class="form-group" style="margin-right:12px;">
+
+                        <label for="property">
+                            Property
+                        </label>
+
+                        <select id="property" name="property">
+
+                            <option value="all"
+                                {% if property_filter == 'all' %}
+                                selected
+                                {% endif %}>
+                                All Properties
+                            </option>
+
+                            {% for property in properties %}
+
+                            <option value="{{ property.propertyID }}"
+                                {% if property_filter == property.propertyID %}
+                                selected
+                                {% endif %}>
+
+                                {{ property.propertyAddress }}
+
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- START DATE -->
+
+                    <div class="form-group"
+                         style="margin-left:12px; min-width:260px;">
+
+                        <label for="startDate">
+                            Start Date
+                        </label>
+
+                        <input
+                            type="date"
+                            id="startDate"
+                            name="startDate"
+                            value="{{ start_date or '' }}"
+                        >
+
+                    </div>
+
+
+                    <!-- END DATE -->
+
+                    <div class="form-group">
+
+                        <label for="endDate">
+                            End Date
+                        </label>
+
+                        <input
+                            type="date"
+                            id="endDate"
+                            name="endDate"
+                            value="{{ end_date or '' }}"
+                        >
+
+                    </div>
+
+
+                    <!-- GROUPING -->
+
+                    <div class="form-group"
+                         style="margin-left:12px;">
+
+                        <label for="grouping">
+                            Grouping
+                        </label>
+
+                        <select id="grouping" name="grouping">
+
+                            <option value="monthly"
+                                {% if grouping == 'monthly' %}
+                                selected
+                                {% endif %}>
+                                Monthly
+                            </option>
+
+                            <option value="quarterly"
+                                {% if grouping == 'quarterly' %}
+                                selected
+                                {% endif %}>
+                                Quarterly
+                            </option>
+
+                            <option value="yearly"
+                                {% if grouping == 'yearly' %}
+                                selected
+                                {% endif %}>
+                                Yearly
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- PROPERTY TYPE -->
+
+                    <div class="form-group"
+                         style="margin-left:8px;">
+
+                        <label for="propertyType">
+                            Property Type
+                        </label>
+
+                        <select id="propertyType" name="propertyType">
+
+                            <option value="all"
+                                {% if prop_type_filter == 'all' %}
+                                selected
+                                {% endif %}>
+                                All
+                            </option>
+
+                            {% for pt in property_types %}
+
+                            <option value="{{ pt }}"
+                                {% if prop_type_filter == pt %}
+                                selected
+                                {% endif %}>
+
+                                {{ pt }}
+
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- TRANSACTION TYPE -->
+
+                    <div class="form-group"
+                         style="margin-left:8px;">
+
+                        <label for="transactionType">
+                            Transaction Type
+                        </label>
+
+                        <select id="transactionType"
+                                name="transactionType">
+
+                            <option value="all"
+                                {% if tx_type_filter == 'all' %}
+                                selected
+                                {% endif %}>
+                                All
+                            </option>
+
+                            <option value="Income"
+                                {% if tx_type_filter == 'Income' %}
+                                selected
+                                {% endif %}>
+                                Income
+                            </option>
+
+                            <option value="Expense"
+                                {% if tx_type_filter == 'Expense' %}
+                                selected
+                                {% endif %}>
+                                Expense
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- CATEGORY -->
+
+                    <div class="form-group"
+                         style="margin-left:8px; min-width:200px;">
+
+                        <label for="category">
+                            Category
+                        </label>
+
+                        <select id="category" name="category">
+
+                            <option value="all"
+                                {% if category_filter == 'all' %}
+                                selected
+                                {% endif %}>
+                                All
+                            </option>
+
+                            {% for c in categories %}
+
+                            <option value="{{ c }}"
+                                {% if category_filter == c %}
+                                selected
+                                {% endif %}>
+
+                                {{ c }}
+
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- BUTTONS -->
+
+                    <div class="form-group"
+                         style="align-self:end; margin-left:8px;">
+
+                        <button type="submit" class="btn">
+                            Apply Filters
+                        </button>
+
+                        <button type="button"
+                                id="resetFilters"
+                                class="btn"
+                                style="margin-left:8px;">
+
+                            Reset
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+
+        <!-- KPI SUMMARY -->
+
+        <section class="summary-row">
+
+
+            <div class="summary-card">
+
+                <h4>
+                    Total Income
+                </h4>
+
+                <h2 id="kpiTotalIncome">
+                    ${{ "%.2f"|format(totalIncome) }}
+                </h2>
+
+                <p>
+                    Selected period
+                </p>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <h4>
+                    Total Expenses
+                </h4>
+
+                <h2 id="kpiTotalExpenses">
+                    ${{ "%.2f"|format(totalExpenses) }}
+                </h2>
+
+                <p>
+                    Selected period
+                </p>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <h4>
+                    Net Profit
+                </h4>
+
+                <h2 id="kpiNetProfit">
+                    ${{ "%.2f"|format(netProfit) }}
+                </h2>
+
+                <p>
+                    Selected period
+                </p>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <h4>
+                    Average ROI
+                </h4>
+
+                <h2 id="kpiAvgROI">
+                    {{ "%.2f"|format(avgROI) }}%
+                </h2>
+
+                <p>
+                    Average rental ROI
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <section class="analytics-row">
+
+
+            <!-- INCOME VS EXPENSES -->
+
+            <div class="graph-card">
+
+                <h3>
+
+                    Income vs Expenses
+
+                    <small style="font-weight:400; font-size:12px; margin-left:8px;">
+
+                        <label>
+
+                            <input type="checkbox"
+                                   id="toggleNet">
+
+                            Show Net Profit
+
+                        </label>
+
+                    </small>
+
+                </h3>
+
+                <div class="chart-container">
+
+                    <canvas id="monthlyChart"></canvas>
+
+                </div>
+
+            </div>
+
+
+            <!-- INCOME BREAKDOWN -->
+
+            <div class="graph-card">
+
+                <h3>
+                    Income Breakdown
+                </h3>
+
+                <div class="chart-container">
+
+                    <canvas id="pieShare"></canvas>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+
+        <section class="analytics-row">
+
+
+            <!-- EXPENSE BREAKDOWN -->
+
+            <div class="graph-card">
+
+                <h3>
+                    Expense Breakdown
+                </h3>
+
+                <div class="chart-container">
+
+                    <canvas id="expenseRadar"></canvas>
+
+                </div>
+
+            </div>
+
+
+            <!-- TRANSACTION ACTIVITY -->
+
+            <div class="graph-card">
+
+                <h3>
+
+                    Transaction Activity
+
+                    <small style="font-weight:400; font-size:12px; margin-left:8px;">
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="txMode"
+                                value="total"
+                                checked
+                            >
+
+                            Total
+
+                        </label>
+
+
+                        <label style="margin-left:8px;">
+
+                            <input
+                                type="radio"
+                                name="txMode"
+                                value="income"
+                            >
+
+                            Income
+
+                        </label>
+
+
+                        <label style="margin-left:8px;">
+
+                            <input
+                                type="radio"
+                                name="txMode"
+                                value="expense"
+                            >
+
+                            Expense
+
+                        </label>
+
+                    </small>
+
+                </h3>
+
+                <div class="chart-container">
+
+                    <canvas id="sineChart"></canvas>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <section class="analytics-row">
+
+
+            <!-- CASH FLOW -->
+
+            <div class="graph-card">
+
+                <h3>
+                    Cash Flow Trend
+                </h3>
+
+                <div class="chart-container">
+
+                    <canvas id="stackedBar"></canvas>
+
+                </div>
+
+            </div>
+
+
+            <!-- NET PROFIT -->
+
+            <div class="graph-card">
+
+                <h3>
+                    Net Profit Trend
+                </h3>
+
+                <div class="chart-container">
+
+                    <canvas id="profitArea"></canvas>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <section class="analytics-row">
+
+
+            <!-- PROPERTY PERFORMANCE -->
+
+            <div class="graph-card">
+
+                <h3>
+
+                    Property Performance Comparison
+
+                    <small style="font-weight:400; font-size:12px; margin-left:8px;">
+
+                        <label>
+
+                            <input
+                                type="checkbox"
+                                id="metricIncome"
+                                class="metric-toggle"
+                                checked
+                            >
+
+                            Income
+
+                        </label>
+
+
+                        <label style="margin-left:6px;">
+
+                            <input
+                                type="checkbox"
+                                id="metricExpenses"
+                                class="metric-toggle"
+                                checked
+                            >
+
+                            Expenses
+
+                        </label>
+
+
+                        <label style="margin-left:6px;">
+
+                            <input
+                                type="checkbox"
+                                id="metricNet"
+                                class="metric-toggle"
+                            >
+
+                            Net
+
+                        </label>
+
+                    </small>
+
+                </h3>
+
+                <div class="chart-container">
+
+                    <canvas id="categoryBar"></canvas>
+
+                </div>
+
+            </div>
+
+
+            <!-- ROI -->
+
+            <div class="graph-card">
+
+                <h3>
+                    ROI by Property
+                </h3>
+
+                <div class="chart-container">
+
+                    <canvas id="polarChart"></canvas>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+</div>
+
+
+
+
+<script id="stat-data" type="application/json">
+
+{{ {
+
+    'periods': periods,
+
+    'period_labels': period_labels,
+
+    'income_series': income_series,
+
+    'expense_series': expense_series,
+
+    'profit_series': profit_series,
+
+    'inflow_series': inflow_series,
+
+    'outflow_series': outflow_series,
+
+    'net_cash_series': net_cash_series,
+
+    'tx_count_series': tx_count_series,
+
+    'tx_count_income_series': tx_count_income_series,
+
+    'tx_count_expense_series': tx_count_expense_series,
+
+    'expense_break_labels': expense_break_labels,
+
+    'expense_break_values': expense_break_values,
+
+    'income_break_labels': income_break_labels,
+
+    'income_break_values': income_break_values,
+
+    'prop_performance': prop_performance,
+
+    'rental_rois': rental_rois,
+
+    'total_rois': total_rois,
+
+    'totalIncome': totalIncome,
+
+    'totalExpenses': totalExpenses,
+
+    'netProfit': netProfit,
+
+    'avgROI': avgROI
+
+}|tojson }}
+
+</script>
+
+
+
+<script>
+
+
+let charts = {};
+
+
+
+const STAT_DATA =
+    JSON.parse(
+        document.getElementById('stat-data').textContent || '{}'
+    );
+
+
+
+
+
+function showEmpty(canvasId, message) {
+
+    const canvas = document.getElementById(canvasId);
+
+    if (!canvas) return;
+
+    const parent = canvas.parentElement;
+
+    parent.innerHTML = `
+        <div class="empty-chart"
+             style="padding:18px; color:#666; text-align:center;">
+            ${message}
+        </div>
+    `;
+}
+
+
+
+
+function destroyChart(name) {
+
+    if (charts[name]) {
+
+        charts[name].destroy();
+
+        charts[name] = null;
+
+    }
+
+}
+
+
+
+function recreateCanvas(id) {
+
+    const oldCanvas = document.getElementById(id);
+
+    if (!oldCanvas) return;
+
+    const parent = oldCanvas.parentElement;
+
+    parent.innerHTML = `<canvas id="${id}"></canvas>`;
+
+}
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+
+
+    const totalIncome =
+        Number(STAT_DATA.totalIncome || 0);
+
+    const totalExpenses =
+        Number(STAT_DATA.totalExpenses || 0);
+
+    const netProfit =
+        Number(STAT_DATA.netProfit || 0);
+
+    const avgROI =
+        Number(STAT_DATA.avgROI || 0);
+
+
+    document.getElementById('kpiTotalIncome').innerText =
+        '$' + totalIncome.toFixed(2);
+
+
+    document.getElementById('kpiTotalExpenses').innerText =
+        '$' + totalExpenses.toFixed(2);
+
+
+    document.getElementById('kpiNetProfit').innerText =
+        '$' + netProfit.toFixed(2);
+
+
+    document.getElementById('kpiAvgROI').innerText =
+        avgROI.toFixed(2) + '%';
+
+
+    initialiseCharts();
+
+});
+
+
+
+
+function initialiseCharts() {
+
+    createIncomeExpenseChart();
+
+    createIncomeBreakdown();
+
+    createExpenseBreakdown();
+
+    createTransactionActivity();
+
+    createCashFlowChart();
+
+    createProfitChart();
+
+    createPropertyComparison();
+
+    createROIChart();
+
+}
+
+
+
+function createIncomeExpenseChart() {
+
+    destroyChart('incomeExpenses');
+
+    const canvas =
+        document.getElementById('monthlyChart');
+
+    if (!canvas) return;
+
+
+    const datasets = [
+
+        {
+            label: 'Income',
+            data: STAT_DATA.income_series,
+            borderColor: '#27ae60',
+            backgroundColor: 'rgba(39,174,96,0.10)',
+            tension: 0.3,
+            fill: true
+        },
+
+        {
+            label: 'Expenses',
+            data: STAT_DATA.expense_series,
+            borderColor: '#c0392b',
+            backgroundColor: 'rgba(192,57,43,0.08)',
+            tension: 0.3,
+            fill: true
+        }
+
+    ];
+
+
+    if (
+        document.getElementById('toggleNet') &&
+        document.getElementById('toggleNet').checked
+    ) {
+
+        datasets.push({
+
+            label: 'Net Profit',
+
+            data: STAT_DATA.profit_series,
+
+            borderColor: '#2980b9',
+
+            backgroundColor: 'rgba(41,128,185,0.05)',
+
+            tension: 0.3,
+
+            fill: false
+
+        });
+
+    }
+
+
+    charts.incomeExpenses =
+        new Chart(canvas, {
+
+            type: 'line',
+
+            data: {
+
+                labels: STAT_DATA.period_labels,
+
+                datasets: datasets
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+
+                    mode: 'index',
+
+                    intersect: false
+
+                },
+
+                plugins: {
+
+                    legend: {
+
+                        position: 'top'
+
+                    }
+
+                },
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        ticks: {
+
+                            callback: function(value) {
+
+                                return '$' +
+                                    Number(value).toLocaleString();
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+}
+
+
+function createIncomeBreakdown() {
+
+    destroyChart('incomeBreak');
+
+    recreateCanvas('pieShare');
+
+    const canvas =
+        document.getElementById('pieShare');
+
+    if (!canvas) return;
+
+
+    if (
+        !STAT_DATA.income_break_labels ||
+        !STAT_DATA.income_break_labels.length ||
+        !STAT_DATA.income_break_values.some(v => Number(v) > 0)
+    ) {
+
+        showEmpty(
+            'pieShare',
+            'No income data for the selected filters.'
+        );
+
+        return;
+
+    }
+
+
+    charts.incomeBreak =
+        new Chart(canvas, {
+
+            type: 'doughnut',
+
+            data: {
+
+                labels:
+                    STAT_DATA.income_break_labels,
+
+                datasets: [{
+
+                    data:
+                        STAT_DATA.income_break_values,
+
+                    backgroundColor:
+                        STAT_DATA.income_break_labels.map(
+                            (_, i) =>
+                                `hsl(${(i * 45) % 360} 65% 55%)`
+                        )
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+
+                        position: 'bottom'
+
+                    },
+
+                    tooltip: {
+
+                        callbacks: {
+
+                            label: function(context) {
+
+                                return context.label +
+                                    ': $' +
+                                    Number(context.parsed).toFixed(2);
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+}
+
+
+
+function createExpenseBreakdown() {
+
+    destroyChart('expenseBreak');
+
+    recreateCanvas('expenseRadar');
+
+    const canvas =
+        document.getElementById('expenseRadar');
+
+    if (!canvas) return;
+
+
+    if (
+        !STAT_DATA.expense_break_labels ||
+        !STAT_DATA.expense_break_labels.length ||
+        !STAT_DATA.expense_break_values.some(v => Number(v) > 0)
+    ) {
+
+        showEmpty(
+            'expenseRadar',
+            'No expense categories for the selected filters.'
+        );
+
+        return;
+
+    }
+
+
+    charts.expenseBreak =
+        new Chart(canvas, {
+
+            type: 'bar',
+
+            data: {
+
+                labels:
+                    STAT_DATA.expense_break_labels,
+
+                datasets: [{
+
+                    label: 'Expenses',
+
+                    data:
+                        STAT_DATA.expense_break_values,
+
+                    backgroundColor:
+                        'rgba(155,89,182,0.75)'
+
+                }]
+
+            },
+
+            options: {
+
+                indexAxis: 'y',
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+
+                        display: false
+
+                    },
+
+                    tooltip: {
+
+                        callbacks: {
+
+                            label: function(context) {
+
+                                return '$' +
+                                    Number(context.parsed.x)
+                                    .toFixed(2);
+
+                            }
+
+                        }
+
+                    }
+
+                },
+
+                scales: {
+
+                    x: {
+
+                        beginAtZero: true,
+
+                        ticks: {
+
+                            callback: function(value) {
+
+                                return '$' +
+                                    Number(value).toLocaleString();
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+}
+
+
+
+function createTransactionActivity() {
+
+    destroyChart('txActivity');
+
+    recreateCanvas('sineChart');
+
+    const canvas =
+        document.getElementById('sineChart');
+
+    if (!canvas) return;
+
+
+    const selected =
+        document.querySelector(
+            'input[name="txMode"]:checked'
+        );
+
+
+    const mode =
+        selected ? selected.value : 'total';
+
+
+    let data =
+        STAT_DATA.tx_count_series;
+
+
+    if (mode === 'income') {
+
+        data =
+            STAT_DATA.tx_count_income_series;
+
+    }
+
+
+    if (mode === 'expense') {
+
+        data =
+            STAT_DATA.tx_count_expense_series;
+
+    }
+
+
+    charts.txActivity =
+        new Chart(canvas, {
+
+            type: 'bar',
+
+            data: {
+
+                labels:
+                    STAT_DATA.period_labels,
+
+                datasets: [{
+
+                    label:
+                        mode === 'income'
+                            ? 'Income Transactions'
+                            : mode === 'expense'
+                                ? 'Expense Transactions'
+                                : 'Total Transactions',
+
+                    data: data,
+
+                    backgroundColor:
+                        'rgba(52,73,94,0.70)'
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        ticks: {
+
+                            precision: 0
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+}
+
+
+
+function createCashFlowChart() {
+
+    destroyChart('cashFlow');
+
+    recreateCanvas('stackedBar');
+
+    const canvas =
+        document.getElementById('stackedBar');
+
+    if (!canvas) return;
+
+
+    charts.cashFlow =
+        new Chart(canvas, {
+
+            type: 'line',
+
+            data: {
+
+                labels:
+                    STAT_DATA.period_labels,
+
+                datasets: [
+
+                    {
+
+                        label: 'Cash Inflow',
+
+                        data:
+                            STAT_DATA.inflow_series,
+
+                        borderColor: '#27ae60',
+
+                        backgroundColor:
+                            'rgba(39,174,96,0.08)',
+
+                        tension: 0.3,
+
+                        fill: false
+
+                    },
+
+                    {
+
+                        label: 'Cash Outflow',
+
+                        data:
+                            STAT_DATA.outflow_series,
+
+                        borderColor: '#c0392b',
+
+                        backgroundColor:
+                            'rgba(192,57,43,0.08)',
+
+                        tension: 0.3,
+
+                        fill: false
+
+                    },
+
+                    {
+
+                        label: 'Net Cash',
+
+                        data:
+                            STAT_DATA.net_cash_series,
+
+                        borderColor: '#8e44ad',
+
+                        backgroundColor:
+                            'rgba(142,68,173,0.08)',
+
+                        tension: 0.3,
+
+                        fill: false
+
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+
+                    mode: 'index',
+
+                    intersect: false
+
+                },
+
+                scales: {
+
+                    y: {
+
+                        ticks: {
+
+                            callback: function(value) {
+
+                                return '$' +
+                                    Number(value).toLocaleString();
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+}
+
+
+
+function createProfitChart() {
+
+    destroyChart('profitChart');
+
+    recreateCanvas('profitArea');
+
+    const canvas =
+        document.getElementById('profitArea');
+
+    if (!canvas) return;
+
+
+    const profit =
+        STAT_DATA.profit_series || [];
+
+
+    if (
+        !profit.length ||
+        !profit.some(value => Number(value) !== 0)
+    ) {
+
+        showEmpty(
+            'profitArea',
+            'No profit data for the selected filters.'
+        );
+
+        return;
+
+    }
+
+
+    charts.profitChart =
+        new Chart(canvas, {
+
+            type: 'line',
+
+            data: {
+
+                labels:
+                    STAT_DATA.period_labels,
+
+                datasets: [{
+
+                    label: 'Net Profit',
+
+                    data: profit,
+
+                    borderColor: '#2980b9',
+
+                    backgroundColor:
+                        'rgba(41,128,185,0.15)',
+
+                    borderWidth: 2,
+
+                    tension: 0.3,
+
+                    fill: true
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+
+                    mode: 'index',
+
+                    intersect: false
+
+                },
+
+                plugins: {
+
+                    legend: {
+
+                        display: false
+
+                    },
+
+                    tooltip: {
+
+                        callbacks: {
+
+                            label: function(context) {
+
+                                return 'Net Profit: $' +
+                                    Number(context.parsed.y)
+                                    .toFixed(2);
+
+                            }
+
+                        }
+
+                    }
+
+                },
+
+                scales: {
+
+                    y: {
+
+                        ticks: {
+
+                            callback: function(value) {
+
+                                return '$' +
+                                    Number(value).toLocaleString();
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+}
+
+
+
+function createPropertyComparison() {
+
+    destroyChart('propCompare');
+
+    recreateCanvas('categoryBar');
+
+    const canvas =
+        document.getElementById('categoryBar');
+
+    if (!canvas) return;
+
+
+    const properties =
+        STAT_DATA.prop_performance || [];
+
+
+    const labels =
+        properties.map(p => p.label);
+
+
+    const income =
+        properties.map(p => p.income);
+
+
+    const expenses =
+        properties.map(p => p.expenses);
+
+
+    const net =
+        properties.map(p => p.net);
+
+
+    const datasets = [];
+
+
+    if (
+        document.getElementById('metricIncome') &&
+        document.getElementById('metricIncome').checked
+    ) {
+
+        datasets.push({
+
+            label: 'Income',
+
+            data: income,
+
+            backgroundColor: '#27ae60'
+
+        });
+
+    }
+
+
+    if (
+        document.getElementById('metricExpenses') &&
+        document.getElementById('metricExpenses').checked
+    ) {
+
+        datasets.push({
+
+            label: 'Expenses',
+
+            data: expenses,
+
+            backgroundColor: '#c0392b'
+
+        });
+
+    }
+
+
+    if (
+        document.getElementById('metricNet') &&
+        document.getElementById('metricNet').checked
+    ) {
+
+        datasets.push({
+
+            label: 'Net',
+
+            data: net,
+
+            backgroundColor: '#2980b9'
+
+        });
+
+    }
+
+
+    if (!datasets.length) {
+
+        datasets.push({
+
+            label: 'Net',
+
+            data: net,
+
+            backgroundColor: '#2980b9'
+
+        });
+
+    }
+
+
+    charts.propCompare =
+        new Chart(canvas, {
+
+            type: 'bar',
+
+            data: {
+
+                labels: labels,
+
+                datasets: datasets
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        ticks: {
+
+                            callback: function(value) {
+
+                                return '$' +
+                                    Number(value).toLocaleString();
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+}
+
+
+
+
+function createROIChart() {
+
+    destroyChart('roiChart');
+
+    recreateCanvas('polarChart');
+
+    const canvas =
+        document.getElementById('polarChart');
+
+    if (!canvas) return;
+
+
+    const rental =
+        STAT_DATA.rental_rois || [];
+
+
+    const total =
+        STAT_DATA.total_rois || [];
+
+
+    const labels =
+        rental.map(r => r.label);
+
+
+    const rentalValues =
+        rental.map(r => r.rental_roi);
+
+
+    const totalValues =
+        total.map(r => r.total_roi);
+
+
+    if (!labels.length) {
+
+        showEmpty(
+            'polarChart',
+            'No ROI data available for the selected properties.'
+        );
+
+        return;
+
+    }
+
+
+    charts.roiChart =
+        new Chart(canvas, {
+
+            type: 'bar',
+
+            data: {
+
+                labels: labels,
+
+                datasets: [
+
+                    {
+
+                        label: 'Rental ROI (%)',
+
+                        data: rentalValues,
+
+                        backgroundColor:
+                            'rgba(52,152,219,0.75)'
+
+                    },
+
+                    {
+
+                        label: 'Total ROI (%)',
+
+                        data: totalValues,
+
+                        backgroundColor:
+                            'rgba(46,204,113,0.75)'
+
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        ticks: {
+
+                            callback: function(value) {
+
+                                return value + '%';
+
+                            }
+
+                        }
+
+                    }
+
+                },
+
+                plugins: {
+
+                    tooltip: {
+
+                        callbacks: {
+
+                            label: function(context) {
+
+                                return context.dataset.label +
+                                    ': ' +
+                                    Number(context.parsed.y)
+                                    .toFixed(2) +
+                                    '%';
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+}
+
+
+document.addEventListener('change', function(event) {
+
+
+    if (event.target.id === 'toggleNet') {
+
+        destroyChart('incomeExpenses');
+
+        recreateCanvas('monthlyChart');
+
+        createIncomeExpenseChart();
+
+    }
+
+
+    if (
+        event.target.classList.contains('metric-toggle')
+    ) {
+
+        destroyChart('propCompare');
+
+        recreateCanvas('categoryBar');
+
+        createPropertyComparison();
+
+    }
+
+
+    if (
+        event.target.name === 'txMode'
+    ) {
+
+        destroyChart('txActivity');
+
+        recreateCanvas('sineChart');
+
+        createTransactionActivity();
+
+    }
+
+});
+
+
+const resetButton =
+    document.getElementById('resetFilters');
+
+
+if (resetButton) {
+
+    resetButton.addEventListener('click', function() {
+
+        document.getElementById('filterForm').reset();
+
+        document.getElementById('filterForm').submit();
+
+    });
+
+}
+
+
+</script>
+
+</body>
+
+</html>
+

@@ -10,11 +10,20 @@ from flask import (
     send_file
 )
 
+from utils.ai_helper import (
+    ensure_user_dir,
+    extract_text_from_file,
+    build_context,
+    generate_reply
+)
+
+from utils.propradar import search_omniledger_property
+
 from datetime import datetime
-
 import os
-
 from werkzeug.utils import secure_filename
+import requests
+import time
 
 from utils.pdf_generator import generate_report_pdf
 
@@ -29,7 +38,12 @@ from utils.calculations import (
     calculate_rental_roi,
     calculate_total_roi
 )
-
+from utils.ai_helper import (
+    ensure_user_dir,
+    extract_text_from_file,
+    build_context,
+    generate_reply
+)
 
 from database.models import (
     create_user,
@@ -47,19 +61,332 @@ from database.models import (
     get_property_expenses,
 
     get_reports,
-    get_report
+    get_report,
+    get_report_transactions,
+    get_total_income,
+    get_total_expenses,
+    get_net_profit
 )
 
 
-
-
 app = Flask(__name__)
-
 app.secret_key = "omniledger_secret_key"
+
+def load_openai_key():
+    try:
+        key_file = os.path.join('instance', 'ai_key.txt')
+        if os.path.isfile(key_file):
+            with open(key_file, 'r', encoding='utf-8') as f:
+                k = f.read().strip()
+                if k:
+                    os.environ['OPENAI_API_KEY'] = k
+    except Exception:
+        pass
+
+load_openai_key()
+
+
+DOMAIN_BASE = os.environ.get("DOMAIN_BASE", "https://api.domain.com.au")
+DOMAIN_KEY = os.environ.get("DOMAIN_API_KEY")
+DOMAIN_CACHE = {}
+DOMAIN_CACHE_TTL = 3600  
+
+def domain_get(path, params=None):
+
+    headers = {}
+
+    if DOMAIN_KEY:
+
+        headers["X-API-Key"] = DOMAIN_KEY
+
+    resp = requests.get(DOMAIN_BASE + path, headers=headers, params=params, timeout=10)
+
+    resp.raise_for_status()
+
+    return resp.json()
+
+
+@app.route('/api/domain/suburb/<state>/<suburb>')
+def domain_suburb(state, suburb):
+
+    key = ("suburb:" + state + ":" + suburb).lower()
+
+    now = time.time()
+
+    cached = DOMAIN_CACHE.get(key)
+
+    if cached and (now - cached[0]) < DOMAIN_CACHE_TTL:
+        return jsonify(cached[1])
+
+    try:
+        data = domain_get("/v2/suburbPerformanceStatistics/" + state + "/" + suburb)
+
+    except requests.HTTPError as e:
+        return jsonify({'error': 'domain api error', 'details': str(e)}), 502
+
+    DOMAIN_CACHE[key] = (now, data)
+
+    return jsonify(data)
+
+
+@app.route('/api/market/local/<state>/<suburb>')
+def market_local(state, suburb):
+    if 'userID' not in session:
+        return jsonify({'error':'not authenticated'}), 401
+
+    userID = session['userID']
+
+    from datetime import date, timedelta
+
+    today = date.today()
+    months = []
+    for i in range(11, -1, -1):
+        m = (today.replace(day=1) - timedelta(days= i*30))
+        months.append(m.strftime('%Y-%m'))
+
+    income_series = {m:0 for m in months}
+    expense_series = {m:0 for m in months}
+
+    props = get_properties(userID)
+    matching = []
+    for p in props:
+        addr = (p['propertyAddress'] or '').lower()
+        if suburb.lower() in addr:
+            matching.append(p['propertyID'])
+
+    if not matching:
+        return jsonify({'source':'local','message':'no properties match this suburb','periods':months,'income':list(income_series.values()),'expenses':list(expense_series.values())})
+
+    for pid in matching:
+        txs = get_report_transactions(userID, pid)
+        for t in txs:
+            ds = t[5]
+            ym = None
+            try:
+                if len(ds) >= 10 and ds[4] == '-':
+                    ym = ds[:7]
+                elif len(ds) >= 10 and ds[2] == '-':
+                    parts = ds.split('-')
+                    ym = parts[2] + "-" + parts[1]
+            except Exception:
+                ym = None
+            if ym and ym in income_series:
+                if t[2] == 'Income':
+                    income_series[ym] += t[4]
+                elif t[2] == 'Expense':
+                    expense_series[ym] += t[4]
+
+    return jsonify({
+        'source':'local',
+        'periods': months,
+        'income': [round(income_series[m],2) for m in months],
+        'expenses': [round(expense_series[m],2) for m in months]
+    })
+
+
+@app.route('/api/domain/address')
+def domain_address():
+    q = request.args.get('q') or request.args.get('query')
+    if not q:
+        return jsonify({'error':'missing query'}), 400
+
+    key = "addr:" + q.lower()
+    now = time.time()
+    cached = DOMAIN_CACHE.get(key)
+    if cached and (now - cached[0]) < DOMAIN_CACHE_TTL:
+        return jsonify(cached[1])
+
+    try:
+        data = domain_get('/v1/addressLocators', params={'q': q})
+    except requests.HTTPError as e:
+        return jsonify({'error':'domain api error','details':str(e)}), 502
+
+    DOMAIN_CACHE[key] = (now, data)
+    return jsonify(data)
+
+
+@app.route('/ai-analytics')
+def ai_analytics():
+    if 'userID' not in session:
+        return redirect(url_for('login'))
+    userID = session['userID']
+    properties = get_properties(userID)
+    return render_template('ai_analytics.html', properties=properties)
+
+
+@app.route('/api/ai-upload', methods=['POST'])
+def api_ai_upload():
+    if 'userID' not in session:
+        return jsonify({'error':'not authenticated'}), 401
+    userID = session['userID']
+    f = request.files.get('file')
+    if not f or not f.filename:
+        return jsonify({'error':'no file uploaded'}), 400
+    filename = secure_filename(f.filename)
+    user_dir = ensure_user_dir(userID)
+    save_path = os.path.join(user_dir, filename)
+    f.save(save_path)
+    summary = extract_text_from_file(save_path)
+    return jsonify({'filename': filename, 'summary': summary})
+
+
+@app.route('/api/ai-uploads', methods=['GET'])
+def api_ai_uploads():
+    if 'userID' not in session:
+        return jsonify({'error':'not authenticated'}), 401
+    userID = session['userID']
+    user_dir = os.path.join('uploads', 'ai', str(userID))
+    files = []
+    if os.path.isdir(user_dir):
+        for fn in sorted(os.listdir(user_dir)):
+            fp = os.path.join(user_dir, fn)
+            if os.path.isfile(fp):
+                files.append({'filename': fn})
+    return jsonify({'files': files})
+
+
+@app.route('/api/ai-download/<filename>')
+def api_ai_download(filename):
+    if 'userID' not in session:
+        return redirect(url_for('login'))
+    userID = session['userID']
+    safe = secure_filename(filename)
+    path = os.path.join('uploads', 'ai', str(userID), safe)
+    if not os.path.isfile(path):
+        return jsonify({'error':'not found'}), 404
+    return send_file(path, as_attachment=True)
+
+
+@app.route('/api/propradar/property/<propertyID>')
+def api_propradar_property(propertyID):
+
+    if 'userID' not in session:
+        return jsonify({'error': 'not authenticated'}), 401
+
+    userID = session['userID']
+
+    property_data = get_property(
+        propertyID,
+        userID
+    )
+
+    if property_data is None:
+        return jsonify({
+            'error': 'property not found'
+        }), 404
+
+    try:
+
+        propradar_data = search_omniledger_property(
+            property_data
+        )
+
+        return jsonify({
+            'success': True,
+            'property': dict(property_data),
+            'propradar': propradar_data
+        })
+
+    except Exception as e:
+
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/ai-chat', methods=['POST'])
+def api_ai_chat():
+
+    if 'userID' not in session:
+        return jsonify({
+            'error': 'not authenticated'
+        }), 401
+
+    userID = session['userID']
+
+    data = request.get_json() or {}
+
+    message = data.get('message')
+
+    property_id = data.get('propertyID')
+
+
+    ctx = build_context(
+        userID,
+        property_id
+    )
+
+
+    if property_id:
+
+        property_data = get_property(
+            property_id,
+            userID
+        )
+
+        if property_data:
+
+            try:
+
+                propradar_data = search_omniledger_property(
+                    property_data
+                )
+
+                ctx["propradar"] = propradar_data
+
+            except Exception as e:
+
+                ctx["propradar"] = {
+                    "available": False,
+                    "error": str(e)
+                }
+
+
+    reply = generate_reply(
+        message,
+        ctx
+    )
+
+    return jsonify({
+        'reply': reply
+    })
+
+
+@app.route('/api/nominatim/search')
+def nominatim_search():
+    q = request.args.get('q') or request.args.get('query')
+    if not q:
+        return jsonify({'error':'missing query'}), 400
+
+    key = "nominatim:" + q.lower()
+    now = time.time()
+    cached = DOMAIN_CACHE.get(key)
+    if cached and (now - cached[0]) < DOMAIN_CACHE_TTL:
+        return jsonify(cached[1])
+
+    params = {
+        'q': q,
+        'format': 'json',
+        'addressdetails': 1,
+        'limit': 12
+    }
+
+    headers = {
+        'User-Agent': 'OmniLedger/1.0 (contact: you@example.com)'
+    }
+
+    try:
+        resp = requests.get('https://nominatim.openstreetmap.org/search', params=params, headers=headers, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+    except requests.HTTPError as e:
+        return jsonify({'error':'nominatim error','details':str(e)}), 502
+
+    DOMAIN_CACHE[key] = (now, data)
+    return jsonify(data)
 
 
 # LOGIN
-
 @app.route("/", methods=["GET", "POST"])
 def login():
 
@@ -101,18 +428,17 @@ def login():
                 url_for("login")
             )
 
-
     return render_template(
-        "login.html"
-    )
 
+        "login.html"
+
+    )
 
 # DASHBOARD
 
 @app.route("/dashboard")
 def dashboard():
 
-    # Make sure user is logged in
 
     if "userID" not in session:
 
@@ -123,8 +449,6 @@ def dashboard():
 
     userID = session["userID"]
 
-
-    # Import financial functions here
 
     from database.models import (
         get_total_income,
@@ -167,6 +491,15 @@ def dashboard():
     )
 
 
+#HELP
+@app.route("/help")
+def help_page():
+
+    if "userID" not in session:
+        return redirect(url_for("login"))
+
+    return render_template("help.html")
+
 # REPORTS
 
 @app.route("/reports")
@@ -195,6 +528,349 @@ def reports():
         totalExpenses=0,
         netProfit=0
     )
+
+
+# STATISTICS
+@app.route("/statistics")
+def statistics():
+    if "userID" not in session:
+        return redirect(url_for("login"))
+
+    userID = session["userID"]
+
+    property_filter = request.args.get('property', 'all')
+    start_date = request.args.get('startDate')
+    end_date = request.args.get('endDate')
+    grouping = request.args.get('grouping', 'monthly')  
+    prop_type_filter = request.args.get('propertyType', 'all')
+    tx_type_filter = request.args.get('transactionType', 'all')
+    category_filter = request.args.get('category', 'all')
+
+    properties = get_properties(userID)
+    property_types = sorted(list({p['propertyType'] or 'Unknown' for p in properties}))
+    if prop_type_filter != 'all':
+        properties = [p for p in properties if (p['propertyType'] or '') == prop_type_filter]
+
+    transactions = get_report_transactions(userID, property_filter or 'all', start_date, end_date)
+
+    categories = sorted(list({(t[3] or 'Uncategorized') for t in transactions}))
+
+    from datetime import datetime as _dt
+
+    def parse_tx_date(s):
+        if not s:
+            return None
+        try:
+            if len(s) >= 10 and s[4] == '-':
+                return _dt.strptime(s[:10], '%Y-%m-%d').date()
+            if len(s) >= 10 and s[2] == '-':
+                parts = s.split('-')
+                return _dt.strptime(parts[0] + '-' + parts[1] + '-' + parts[2][:4], '%d-%m-%Y').date()
+        except Exception:
+            return None
+
+    def period_key_for_date(d):
+        if d is None:
+            return None
+        if grouping == 'monthly':
+            return d.strftime('%Y-%m')
+        if grouping == 'quarterly':
+            q = (d.month - 1) // 3 + 1
+            return f"{d.year}-Q{q}"
+        if grouping == 'yearly':
+            return d.strftime('%Y')
+        return d.strftime('%Y-%m')
+
+    from datetime import date, timedelta
+    today = date.today()
+
+    periods = []
+    labels = []
+    if start_date and end_date:
+        try:
+            sd = datetime.strptime(start_date, '%Y-%m-%d').date()
+            ed = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except Exception:
+            sd = today.replace(day=1) - timedelta(days=365)
+            ed = today
+    else:
+        ed = today
+        sd = (today.replace(day=1) - timedelta(days=365))
+
+
+
+    if grouping == 'monthly':
+        cur = sd.replace(day=1)
+        while cur <= ed:
+            ym = cur.strftime('%Y-%m')
+            periods.append(ym)
+            labels.append(cur.strftime('%b %y'))
+
+
+            if cur.month == 12:
+                cur = cur.replace(year=cur.year+1, month=1)
+            else:
+                cur = cur.replace(month=cur.month+1)
+
+    elif grouping == 'quarterly':
+        start_q = ((sd.month - 1) // 3) + 1
+        cur_year = sd.year
+        cur_q = start_q
+        while True:
+            key = f"{cur_year}-Q{cur_q}"
+            periods.append(key)
+            labels.append(f"Q{cur_q} {str(cur_year)[2:]}")
+    
+            if cur_q == 4:
+                cur_q = 1
+                cur_year += 1
+            else:
+                cur_q += 1
+
+            quarter_end_month = (cur_q - 1) * 3 + 3
+    
+            if _dt(cur_year, quarter_end_month, 1).date() > ed:
+               
+                if period_key_for_date(sd) not in periods and periods == []:
+                    pass
+                break
+
+    elif grouping == 'yearly':
+        y = sd.year
+
+        while y <= ed.year:
+
+            key = str(y)
+
+            periods.append(key)
+
+            labels.append(key)
+
+            y += 1
+    
+    
+    else:
+        cur = sd.replace(day=1)
+
+        while cur <= ed:
+
+            ym = cur.strftime('%Y-%m')
+
+            periods.append(ym)
+
+            labels.append(cur.strftime('%b %y'))
+
+            if cur.month == 12:
+
+                cur = cur.replace(year=cur.year+1, month=1)
+
+            else:
+
+                cur = cur.replace(month=cur.month+1)
+
+
+    income_map = {p:0.0 for p in periods}
+
+    expense_map = {p:0.0 for p in periods}
+
+    inflow_map = {p:0.0 for p in periods}
+
+    outflow_map = {p:0.0 for p in periods}
+
+    tx_count_map = {p:0 for p in periods}
+
+    tx_count_income_map = {p:0 for p in periods}
+
+    tx_count_expense_map = {p:0 for p in periods}
+
+    income_break = {}
+    expense_break = {}
+
+
+    for t in transactions:
+        tx_type = t[2]
+        category = t[3] or 'Uncategorized'
+        amount = float(t[4] or 0)
+        tx_date = parse_tx_date(t[5])
+        key = period_key_for_date(tx_date)
+        if category_filter != 'all' and category != category_filter:
+            continue
+        if tx_type_filter != 'all' and tx_type != tx_type_filter:
+            continue
+
+        if key and key in income_map:
+            if tx_type == 'Income':
+                income_map[key] += amount
+                inflow_map[key] += amount
+                income_break[category] = income_break.get(category, 0.0) + amount
+            elif tx_type == 'Expense':
+                expense_map[key] += amount
+                outflow_map[key] += amount
+                expense_break[category] = expense_break.get(category, 0.0) + amount
+            tx_count_map[key] = tx_count_map.get(key, 0) + 1
+            if tx_type == 'Income':
+                tx_count_income_map[key] = tx_count_income_map.get(key, 0) + 1
+            elif tx_type == 'Expense':
+                tx_count_expense_map[key] = tx_count_expense_map.get(key, 0) + 1
+
+   
+    income_series = [round(income_map[p],2) for p in periods]
+
+    expense_series = [round(expense_map[p],2) for p in periods]
+
+    profit_series = [round(income_series[i] - expense_series[i],2) for i in range(len(periods))]
+
+    inflow_series = [round(inflow_map[p],2) for p in periods]
+
+    outflow_series = [round(outflow_map[p],2) for p in periods]
+
+    net_cash_series = [round(inflow_series[i] - outflow_series[i],2) for i in range(len(periods))]
+
+    tx_count_series = [tx_count_map[p] for p in periods]
+
+    tx_count_income_series = [tx_count_income_map[p] for p in periods]
+
+    tx_count_expense_series = [tx_count_expense_map[p] for p in periods]
+
+    
+    expense_items = sorted(expense_break.items(), key=lambda x: x[1], reverse=True)
+
+    expense_labels = [it[0] for it in expense_items]
+
+    expense_values = [round(it[1],2) for it in expense_items]
+
+   
+
+    income_items = sorted(income_break.items(), key=lambda x: x[1], reverse=True)
+
+    income_labels = [it[0] for it in income_items]
+
+    income_values = [round(it[1],2) for it in income_items]
+
+
+    
+    prop_performance = []
+
+    rental_rois = []
+
+    total_rois = []
+
+    def row_val(row, key, default=0):
+
+        try:
+
+            v = row[key]
+
+            return v if v is not None else default
+
+        except Exception:
+
+            return default
+
+    for p in get_properties(userID):
+        pid = p['propertyID']
+
+        pname = p['propertyAddress'] or pid
+     
+        prop_txs = get_report_transactions(userID, pid, start_date, end_date)
+
+        prop_income = 0.0
+
+        prop_expenses = 0.0
+
+        for tx in prop_txs:
+
+            tx_type = tx[2]
+
+            cat = tx[3] or 'Uncategorized'
+
+            amt = float(tx[4] or 0)
+
+            if category_filter != 'all' and cat != category_filter:
+
+                continue
+
+            if tx_type_filter != 'all' and tx_type != tx_type_filter:
+
+                continue
+
+            if tx_type == 'Income':
+
+                prop_income += amt
+
+            elif tx_type == 'Expense':
+
+                prop_expenses += amt
+
+        net = prop_income - prop_expenses
+
+        weekly = row_val(p, 'weeklyRent', 0)
+
+        purchase = row_val(p, 'purchasePrice', 0)
+
+        prop_value = row_val(p, 'propertyValue', 0)
+
+        rental_roi = calculate_rental_roi(weekly, prop_expenses, purchase)
+
+        total_roi = calculate_total_roi(prop_value, purchase, weekly, prop_expenses)
+
+        prop_performance.append({'propertyID': pid, 'label': pname, 'income': round(prop_income,2), 'expenses': round(prop_expenses,2), 'net': round(net,2)})
+
+        rental_rois.append({'propertyID': pid, 'label': pname, 'rental_roi': rental_roi})
+
+        total_rois.append({'propertyID': pid, 'label': pname, 'total_roi': total_roi})
+
+
+
+    # KPIs
+    total_income = sum(income_series)
+
+    total_expenses = sum(expense_series)
+
+    net_profit = total_income - total_expenses
+
+    avg_roi = 0
+
+    if rental_rois:
+        avg_roi = round(sum([r['rental_roi'] for r in rental_rois]) / len(rental_rois),2)
+
+    return render_template(
+        "statistics.html",
+        properties=properties,
+        property_types=property_types,
+        categories=categories,
+        periods=periods,
+        period_labels=labels,
+        income_series=income_series,
+        expense_series=expense_series,
+        profit_series=profit_series,
+        inflow_series=inflow_series,
+        outflow_series=outflow_series,
+        net_cash_series=net_cash_series,
+        tx_count_series=tx_count_series,
+        tx_count_income_series=tx_count_income_series,
+        tx_count_expense_series=tx_count_expense_series,
+        expense_break_labels=expense_labels,
+        expense_break_values=expense_values,
+        income_break_labels=income_labels,
+        income_break_values=income_values,
+        prop_performance=prop_performance,
+        rental_rois=rental_rois,
+        total_rois=total_rois,
+        totalIncome=total_income,
+        totalExpenses=total_expenses,
+        netProfit=net_profit,
+        avgROI=avg_roi,
+        property_filter=property_filter,
+        start_date=start_date,
+        end_date=end_date,
+        grouping=grouping,
+        prop_type_filter=prop_type_filter,
+        tx_type_filter=tx_type_filter,
+        category_filter=category_filter
+    )
+
+
 
 # GENERATE REPORT
 
@@ -493,10 +1169,13 @@ def download_report(reportID):
             url_for("reports")
         )
 
+    # Allow optional propertyID query param when downloading a freshly generated report
+    propertyID = request.args.get('propertyID', 'all')
+
     report_data = create_financial_report(
         userID,
         report[2],
-        "all",
+        propertyID,
         report[3],
         report[4]
     )
@@ -635,6 +1314,9 @@ def property_details(propertyID):
         total_expenses=total_expenses,
 
         net_profit=net_profit,
+
+    
+    
 
         rentalROI=rentalROI,
 

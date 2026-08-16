@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Help | OmniLedger</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/help.css') }}"
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+</head>
+
+
+<body>
+
+    <div class="page-container">
+
+        <!-- SIDEBAR -->
+
+
+        <aside class="sidebar">
+
+
+
+            <div class="user-profile">
+
+
+                <div class="profile-image">
+
+                    👤
+
+                </div>
+
+
+                <p class="hello-text">
+
+                    Hello!
+
+                </p>
+
+
+                <h3>
+
+                    {{ session["name"] }}
+
+                </h3>
+
+
+            </div>
+
+
+
+
+
+            <div class="search-sidebar">
+
+
+                <input 
+                type="text"
+                placeholder="Search">
+
+
+            </div>
+
+
+            <nav class="sidebar-menu">
+
+
+                <a href="{{ url_for('dashboard') }}">
+
+                    Dashboard
+
+                </a>
+
+
+
+                <a href="{{ url_for('statistics') }}">
+
+                    Statistics
+
+                </a>
+
+
+
+                <a href="{{ url_for('reports') }}">
+
+                    Reports
+
+                </a>
+
+
+
+                <a href="{{ url_for('add_property') }}">
+
+                    Properties
+
+                </a>
+
+
+
+                <a href="{{ url_for('ai_analytics') }}">
+
+                    AI Analytics
+
+                </a>
+
+
+
+
+
+                <hr>
+
+
+
+
+
+                <a href="#">
+
+                    Settings
+
+                </a>
+
+
+
+                <a href="{{ url_for('logout') }}">
+
+                    Log Out
+
+                </a>
+
+
+
+                <a href="#" class="active">
+
+                    Help
+
+                </a>
+
+            </nav>
+
+
+        </aside>
+
+
+
+
+
+        <!-- MAIN CONTENT -->
+
+        <main class="main-content">
+
+            <div class="page-header">
+
+                <div>
+
+                    <p class="eyebrow">SUPPORT CENTRE</p>
+
+                    <h1>Help & Guidance</h1>
+
+                    <p class="header-description">
+                        Learn how to use OmniLedger and get the most
+                        out of your financial and AI tools.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- QUICK START -->
+
+            <section class="help-card">
+
+                <div class="section-heading">
+
+                    <span class="section-icon">?</span>
+
+                    <div>
+
+                        <h2>Getting Started</h2>
+
+                        <p>
+                            A quick overview of the main features
+                            available in OmniLedger.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="help-grid">
+
+                    <div class="help-item">
+
+                        <h3>Dashboard</h3>
+
+                        <p>
+                            View an overview of your properties,
+                            income, expenses and net profit.
+                        </p>
+
+                    </div>
+
+
+                    <div class="help-item">
+
+                        <h3>Properties</h3>
+
+                        <p>
+                            Add and manage your properties,
+                            including rental information,
+                            ownership details and property values.
+                        </p>
+
+                    </div>
+
+
+                    <div class="help-item">
+
+                        <h3>Transactions</h3>
+
+                        <p>
+                            Record property income and expenses
+                            so your financial information stays
+                            up to date.
+                        </p>
+
+                    </div>
+
+
+                    <div class="help-item">
+
+                        <h3>Reports</h3>
+
+                        <p>
+                            Generate financial reports based on
+                            your recorded property information
+                            and transactions.
+                        </p>
+
+                    </div>
+
+
+                    <div class="help-item">
+
+                        <h3>Statistics</h3>
+
+                        <p>
+                            Analyse financial trends using graphs,
+                            filters, income and expense breakdowns,
+                            and property performance information.
+                        </p>
+
+                    </div>
+
+
+                    <div class="help-item">
+
+                        <h3>AI Analytics</h3>
+
+                        <p>
+                            Ask the AI questions about your properties
+                            and the financial information stored in
+                            OmniLedger.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- AI HELP -->
+
+            <section class="help-card ai-card">
+
+                <div class="section-heading">
+
+                    <span class="section-icon">AI</span>
+
+                    <div>
+
+                        <h2>Using OmniLedger AI</h2>
+
+                        <p>
+                            The AI can analyse information already
+                            stored in your OmniLedger account.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="ai-content">
+
+                    <div class="ai-column">
+
+                        <h3>What can I ask?</h3>
+
+                        <p class="intro">
+                            Questions work best when they relate
+                            directly to your properties or financial
+                            records.
+                        </p>
+
+
+                        <div class="example-list">
+
+                            <div class="example">
+                                <span>✓</span>
+                                <p>Is Japan profitable?</p>
+                            </div>
+
+                            <div class="example">
+                                <span>✓</span>
+                                <p>What is the income for Japan?</p>
+                            </div>
+
+                            <div class="example">
+                                <span>✓</span>
+                                <p>What are the expenses for Japan?</p>
+                            </div>
+
+                            <div class="example">
+                                <span>✓</span>
+                                <p>What is the ROI for Japan?</p>
+                            </div>
+
+                            <div class="example">
+                                <span>✓</span>
+                                <p>Which properties are profitable?</p>
+                            </div>
+
+                            <div class="example">
+                                <span>✓</span>
+                                <p>Analyse my portfolio.</p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="ai-column">
+
+                        <h3>What information does it use?</h3>
+
+                        <ul class="info-list">
+
+                            <li>
+                                Property information stored in
+                                OmniLedger.
+                            </li>
+
+                            <li>
+                                Recorded income and expenses.
+                            </li>
+
+                            <li>
+                                Property values and purchase prices.
+                            </li>
+
+                            <li>
+                                Weekly rental amounts.
+                            </li>
+
+                            <li>
+                                Calculated rental ROI.
+                            </li>
+
+                            <li>
+                                Recorded transaction information.
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- API -->
+
+            <section class="help-card">
+
+                <div class="section-heading">
+
+                    <span class="section-icon">API</span>
+
+                    <div>
+
+                        <h2>Property Market Information</h2>
+
+                        <p>
+                            OmniLedger can use external property
+                            information when available.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="api-box">
+
+                    <h3>PropRadar</h3>
+
+                    <p>
+                        OmniLedger connects to the PropRadar API to
+                        search for property market information.
+                    </p>
+
+                    <div class="api-columns">
+
+                        <div>
+
+                            <h4>What it can provide</h4>
+
+                            <ul>
+                                <li>Property listing information</li>
+                                <li>Recently sold property records</li>
+                                <li>Market-related property information</li>
+                            </ul>
+
+                        </div>
+
+
+                        <div>
+
+                            <h4>Limitations</h4>
+
+                            <ul>
+                                <li>Not every property will be found.</li>
+                                <li>Off-market properties may not appear.</li>
+                                <li>Some information requires a paid API plan.</li>
+                                <li>Results depend on the information available through the API.</li>
+                            </ul>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- IMPORTANT -->
+
+            <section class="notice-card">
+
+                <div class="notice-icon">!</div>
+
+                <div>
+
+                    <h3>Important</h3>
+
+                    <p>
+                        OmniLedger AI provides analysis based on the
+                        information available to it. AI responses and
+                        external property information should be treated
+                        as general information and not as professional
+                        financial, legal or investment advice.
+                    </p>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

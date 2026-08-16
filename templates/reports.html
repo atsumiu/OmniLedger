@@ -72,7 +72,7 @@
         </a>
 
 
-        <a href="#">
+        <a href="{{ url_for('statistics') }}">
             Statistics
         </a>
 
@@ -82,12 +82,12 @@
         </a>
 
 
-        <a href="{{ url_for('dashboard') }}">
+        <a href="{{ url_for('add_property') }}">
             Properties
         </a>
 
 
-        <a href="#">
+        <a href="{{ url_for('ai_analytics') }}">
             AI Analytics
         </a>
 
@@ -105,7 +105,7 @@
         </a>
 
 
-        <a href="#">
+        <a href="{{ url_for('help_page') }}" class="active">
             Help
         </a>
 
@@ -803,7 +803,7 @@
 
             <a
                 class="download-button"
-                href="{{ url_for('download_report', reportID=report['reportID']) }}"
+                href="{{ url_for('download_report', reportID=report['reportID'], propertyID=propertyID) }}"
             >
                 Download PDF
             </a>
@@ -818,99 +818,7 @@
 
 
 
-    <!-- RECENT REPORTS -->
-
-    <section class="recent-reports">
-
-
-        <div class="recent-header">
-
-            <div>
-
-                <h3>
-                    Recent Reports
-                </h3>
-
-                <p>
-                    Previously generated financial reports.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        {% if reports %}
-
-
-            {% for report in reports %}
-
-
-            <div class="report-history-card">
-
-
-                <div class="report-history-info">
-
-                    <h4>
-                        {{ report[2] }}
-                    </h4>
-
-                    <p>
-                        {{ report[3] }}
-                        -
-                        {{ report[4] }}
-                    </p>
-
-                </div>
-
-
-                <div class="report-history-values">
-
-                    <span>
-                        Net Profit
-                    </span>
-
-                    <strong>
-                        ${{ "%.2f"|format(report[8] or 0) }}
-                    </strong>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="view-report-button"
-                >
-                    View
-                </button>
-
-
-            </div>
-
-
-            {% endfor %}
-
-
-        {% else %}
-
-
-            <div class="empty-reports">
-
-                <h4>
-                    No reports generated yet
-                </h4>
-
-                <p>
-                    Your generated financial reports will appear here.
-                </p>
-
-            </div>
-
-
-        {% endif %}
-
-
-    </section>
+    <!-- Recent reports section removed per request -->
 
 
 </main>
@@ -1017,14 +925,9 @@
 
 
         const selectedProperty =
-            propertySelect
-                .options[propertySelect.selectedIndex]
-                .text
-                .trim();
+            (propertySelect.options[propertySelect.selectedIndex] || {}).text || "All Properties";
 
-
-        previewProperty.textContent =
-            selectedProperty || "All Properties";
+        previewProperty.textContent = selectedProperty.trim();
 
 
         const startDate =
@@ -1038,6 +941,32 @@
             `${startDate} - ${endDate}`;
 
     }
+
+
+    /* Persist selected property so reloads keep the choice */
+    function restoreSelectedProperty() {
+        // Priority: query param `propertyID` > localStorage > current value
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const q = params.get('propertyID');
+            const stored = localStorage.getItem('reports_selected_property');
+
+            if (q) {
+                propertySelect.value = q;
+            }
+            else if (stored) {
+                propertySelect.value = stored;
+            }
+        }
+        catch (e) {
+            // ignore
+        }
+    }
+
+    propertySelect.addEventListener('change', () => {
+        try { localStorage.setItem('reports_selected_property', propertySelect.value); } catch (e) {}
+    });
+
 
     async function loadReportData() {
 
@@ -1121,6 +1050,7 @@
 
 
             updateReportPreview();
+            updateDownloadLink();
 
         }
 
@@ -1740,7 +1670,32 @@
     );
 
 
+    // Load preview data immediately and wire download link updates
     updateReportPreview();
+    restoreSelectedProperty();
+    loadReportData();
+
+
+    /* DOWNLOAD LINK UPDATES */
+
+    function updateDownloadLink() {
+
+        const downloadAnchor = document.querySelector(
+            ".download-button"
+        );
+
+        if (!downloadAnchor) return;
+
+        try {
+            const url = new URL(downloadAnchor.href, window.location.href);
+            url.searchParams.set('propertyID', propertySelect.value || 'all');
+            downloadAnchor.href = url.toString();
+        }
+        catch (e) {
+            // ignore malformed hrefs
+        }
+
+    }
 
 
 </script>

@@ -423,9 +423,11 @@ def get_report_transactions(
 
         query += """
             AND date(
-                substr(t.date, 7, 4) || '-' ||
-                substr(t.date, 4, 2) || '-' ||
-                substr(t.date, 1, 2)
+                CASE
+                    WHEN substr(t.date, 5, 1) = '-' THEN t.date
+                    WHEN substr(t.date, 3, 1) = '-' THEN substr(t.date, 7, 4) || '-' || substr(t.date, 4, 2) || '-' || substr(t.date, 1, 2)
+                    ELSE t.date
+                END
             ) >= date(?)
         """
 
@@ -436,9 +438,11 @@ def get_report_transactions(
 
         query += """
             AND date(
-                substr(t.date, 7, 4) || '-' ||
-                substr(t.date, 4, 2) || '-' ||
-                substr(t.date, 1, 2)
+                CASE
+                    WHEN substr(t.date, 5, 1) = '-' THEN t.date
+                    WHEN substr(t.date, 3, 1) = '-' THEN substr(t.date, 7, 4) || '-' || substr(t.date, 4, 2) || '-' || substr(t.date, 1, 2)
+                    ELSE t.date
+                END
             ) <= date(?)
         """
 
@@ -448,9 +452,11 @@ def get_report_transactions(
     query += """
         ORDER BY
             date(
-                substr(t.date, 7, 4) || '-' ||
-                substr(t.date, 4, 2) || '-' ||
-                substr(t.date, 1, 2)
+                CASE
+                    WHEN substr(t.date, 5, 1) = '-' THEN t.date
+                    WHEN substr(t.date, 3, 1) = '-' THEN substr(t.date, 7, 4) || '-' || substr(t.date, 4, 2) || '-' || substr(t.date, 1, 2)
+                    ELSE t.date
+                END
             ) ASC
     """
 
@@ -576,7 +582,8 @@ def create_report(
     totalBills,
     netProfit,
     roi,
-    predictedInsights
+    propertyID='all',
+    predictedInsights=''
 ):
 
     conn = connect_database()
@@ -593,9 +600,10 @@ def create_report(
             totalBills,
             netProfit,
             roi,
+            propertyID,
             predictedInsights
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         userID,
         reportType,
@@ -606,6 +614,7 @@ def create_report(
         totalBills,
         netProfit,
         roi,
+        propertyID,
         predictedInsights
     ))
 

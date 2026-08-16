@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Analytics - OmniLedger</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/dashboard.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/ai_analytics.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+
+<div class="dashboard-container">
+
+
+
+    <aside class="sidebar">
+
+
+        <div class="user-profile">
+
+            <div class="profile-image">
+                👤
+            </div>
+
+            <p class="hello-text">
+                Hello!
+            </p>
+
+            <h3>
+                {{ session["name"] }}
+            </h3>
+
+        </div>
+
+
+        <div class="search-sidebar">
+
+            <input
+                type="text"
+                placeholder="Search"
+            >
+
+        </div>
+
+
+        <nav class="sidebar-menu">
+
+
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+
+
+            <a href="{{ url_for('statistics') }}">
+                Statistics
+            </a>
+
+
+            <a href="{{ url_for('reports') }}">
+                Reports
+            </a>
+
+
+            <a href="{{ url_for('add_property') }}">
+                Properties
+            </a>
+
+
+            <a
+                href="{{ url_for('ai_analytics') }}"
+                class="active"
+            >
+                AI Analytics
+            </a>
+
+
+            <hr>
+
+
+            <a href="#">
+                Settings
+            </a>
+
+
+            <a href="{{ url_for('logout') }}">
+                Log Out
+            </a>
+
+
+            <a href="{{ url_for('help_page') }}" class="active">
+                Help
+            </a>
+
+
+        </nav>
+
+
+    </aside>
+
+
+
+
+    <main class="main-content ai-main">
+
+
+        <!-- HEADER -->
+
+        <header class="top-header">
+
+            <div class="logo-section">
+
+                <h2>
+                    OmniLedger
+                </h2>
+
+                <p>
+                    AI Analytics
+                </p>
+
+            </div>
+
+
+            <div class="ai-header-label">
+
+                AI ANALYTICS
+
+            </div>
+
+        </header>
+
+
+
+        <!-- PAGE TITLE -->
+
+        <section class="ai-heading">
+
+            <h1>
+                AI Analytics Engine
+            </h1>
+
+            <p>
+                Ask questions about your properties and financial performance.
+            </p>
+
+        </section>
+
+
+
+        <section class="ai-card">
+
+
+            <!-- PROPERTY SELECTOR -->
+
+            <div class="ai-controls">
+
+
+                <div class="property-selector">
+
+                    <label for="propertySelect">
+                        Analyse Property
+                    </label>
+
+
+                    <select id="propertySelect">
+
+                        <option value="">
+                            All Properties
+                        </option>
+
+
+                        {% for p in properties %}
+
+                        <option value="{{ p.propertyID }}">
+
+                            {{ p.propertyAddress }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="ai-status">
+
+                    <span class="status-dot"></span>
+
+                    AI Ready
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- CHAT WINDOW -->
+
+            <div
+                class="chat-window"
+                id="chatWindow"
+            >
+
+                <div class="welcome-message">
+
+                    <div class="welcome-icon">
+                        ✦
+                    </div>
+
+
+                    <h3>
+                        How can I help?
+                    </h3>
+
+
+                    <p>
+                        Ask me about your property's income,
+                        expenses, profitability or financial performance.
+                    </p>
+
+
+                    <div class="example-questions">
+
+                        <button
+                            onclick="useQuestion('Is Japan a profitable property?')"
+                        >
+                            Is Japan a profitable property?
+                        </button>
+
+
+                        <button
+                            onclick="useQuestion('Which property has the highest income?')"
+                        >
+                            Which property has the highest income?
+                        </button>
+
+
+                        <button
+                            onclick="useQuestion('What are my biggest expenses?')"
+                        >
+                            What are my biggest expenses?
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- INPUT -->
+
+            <div class="ai-input-area">
+
+
+                <input
+                    type="file"
+                    id="fileInput"
+                    hidden
+                >
+
+
+                <button
+                    type="button"
+                    class="upload-button"
+                    id="uploadBtn"
+                    title="Upload file"
+                >
+                    +
+                </button>
+
+
+                <input
+                    id="chatInput"
+                    class="chat-input"
+                    placeholder="Ask OmniLedger AI..."
+                    autocomplete="off"
+                >
+
+
+                <button
+                    type="button"
+                    class="send-button"
+                    id="sendBtn"
+                >
+                    Send
+                </button>
+
+
+            </div>
+
+
+            <p class="ai-disclaimer">
+
+                AI-generated insights are based on the financial information
+                available in OmniLedger and should be reviewed before making
+                financial decisions.
+
+            </p>
+
+
+        </section>
+
+
+
+
+        <section class="uploads-card">
+
+
+            <div class="uploads-heading">
+
+                <div>
+
+                    <h3>
+                        Uploaded Documents
+                    </h3>
+
+                    <p>
+                        Documents available for AI analysis
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="uploadedList"
+                class="uploaded-list"
+            >
+
+                <p class="no-files">
+                    No uploaded files.
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+
+<script>
+
+
+
+function appendMsg(role, text) {
+
+    const win = document.getElementById("chatWindow");
+
+    const welcome =
+        win.querySelector(".welcome-message");
+
+    if (welcome) {
+        welcome.remove();
+    }
+
+
+    const div =
+        document.createElement("div");
+
+    div.className =
+        "msg " + role;
+
+
+    const bubble =
+        document.createElement("div");
+
+    bubble.className =
+        "message-bubble";
+
+
+    bubble.textContent =
+        text;
+
+
+    div.appendChild(bubble);
+
+    win.appendChild(div);
+
+
+    win.scrollTop =
+        win.scrollHeight;
+
+}
+
+
+
+
+function useQuestion(question) {
+
+    const input =
+        document.getElementById("chatInput");
+
+    input.value =
+        question;
+
+    input.focus();
+
+}
+
+
+
+
+document
+.getElementById("sendBtn")
+.addEventListener("click", async function() {
+
+
+    const input =
+        document.getElementById("chatInput");
+
+
+    const msg =
+        input.value.trim();
+
+
+    if (!msg) {
+        return;
+    }
+
+
+    appendMsg(
+        "user",
+        msg
+    );
+
+
+    input.value = "";
+
+
+    try {
+
+
+        const propertyID =
+            document
+            .getElementById("propertySelect")
+            .value || null;
+
+
+        const response =
+            await fetch(
+                "/api/ai-chat",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        message: msg,
+                        propertyID: propertyID
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        appendMsg(
+            "assistant",
+            data.reply ||
+            data.error ||
+            "No response received."
+        );
+
+
+    }
+
+    catch (error) {
+
+        appendMsg(
+            "assistant",
+            "Unable to contact the AI service."
+        );
+
+    }
+
+});
+
+
+
+
+document
+.getElementById("chatInput")
+.addEventListener("keydown", function(event) {
+
+    if (
+        event.key === "Enter" &&
+        !event.shiftKey
+    ) {
+
+        event.preventDefault();
+
+        document
+        .getElementById("sendBtn")
+        .click();
+
+    }
+
+});
+
+
+
+
+document
+.getElementById("uploadBtn")
+.addEventListener("click", function() {
+
+    document
+    .getElementById("fileInput")
+    .click();
+
+});
+
+
+
+document
+.getElementById("fileInput")
+.addEventListener("change", async function() {
+
+
+    const file =
+        this.files[0];
+
+
+    if (!file) {
+        return;
+    }
+
+
+    const formData =
+        new FormData();
+
+
+    formData.append(
+        "file",
+        file
+    );
+
+
+    try {
+
+
+        const response =
+            await fetch(
+                "/api/ai-upload",
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (data.error) {
+
+            appendMsg(
+                "assistant",
+                "Upload error: " +
+                data.error
+            );
+
+            return;
+
+        }
+
+
+        appendMsg(
+            "assistant",
+            "Uploaded " +
+            data.filename +
+            ". " +
+            (data.summary || "")
+        );
+
+
+        loadUploaded();
+
+
+    }
+
+    catch (error) {
+
+        appendMsg(
+            "assistant",
+            "File upload failed."
+        );
+
+    }
+
+});
+
+
+
+async function loadUploaded() {
+
+
+    const list =
+        document.getElementById(
+            "uploadedList"
+        );
+
+
+    try {
+
+
+        const response =
+            await fetch(
+                "/api/ai-uploads"
+            );
+
+
+        const data =
+            await response.json();
+
+
+        list.innerHTML = "";
+
+
+        if (
+            !data.files ||
+            data.files.length === 0
+        ) {
+
+            list.innerHTML =
+                '<p class="no-files">No uploaded files.</p>';
+
+            return;
+
+        }
+
+
+        data.files.forEach(function(file) {
+
+
+            const row =
+                document.createElement("div");
+
+
+            row.className =
+                "uploaded-file";
+
+
+            row.innerHTML = `
+
+                <span>
+                    ${file.filename}
+                </span>
+
+                <a
+                    href="/api/ai-download/${encodeURIComponent(file.filename)}"
+                >
+                    Download
+                </a>
+
+            `;
+
+
+            list.appendChild(row);
+
+        });
+
+
+    }
+
+    catch (error) {
+
+        list.innerHTML =
+            '<p class="no-files">Unable to load files.</p>';
+
+    }
+
+}
+
+
+loadUploaded();
+
+
+</script>
+
+
+</body>
+
+</html>
