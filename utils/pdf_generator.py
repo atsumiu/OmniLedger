@@ -67,7 +67,6 @@ def generate_report_pdf(report_data):
 
     story = []
 
-    # REPORT VALUES
 
     report_type = report_data.get(
         "reportType",
@@ -149,6 +148,7 @@ def generate_report_pdf(report_data):
         "balanceSheet",
         {}
     ) or {}
+
 
 
     story.append(

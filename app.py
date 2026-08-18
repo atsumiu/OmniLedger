@@ -398,7 +398,7 @@ def login():
 
         user = check_user(
             email,
-            password
+            password,
         )
 
 

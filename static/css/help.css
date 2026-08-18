@@ -242,20 +242,19 @@ body{
 }
 
 
+/* MAIN SECTION */
 
 
+.main-content{
 
-/* MAIN */
+    flex:1;
 
-.main-content {
-
-    margin-left: 250px;
-
-    width: calc(100% - 250px);
-
-    padding: 45px 55px 70px;
+    padding:30px 40px;
 
 }
+
+
+
 
 
 .page-header {
